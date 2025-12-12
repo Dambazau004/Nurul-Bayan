@@ -15,176 +15,376 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@300;400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --primary-green: #065f46;
-            --primary-gold: #f59e0b;
-            --accent-blue: #3b82f6;
+            --primary-green: #064e3b; /* Darker Emerald */
+            --primary-gold: #d97706; /* Amber 600 */
+            --accent-cream: #fef3c7;
         }
 
         body { 
             font-family: 'Poppins', sans-serif; 
-            background-color: #f8fafc;
+            background-color: #f3f4f6;
         }
         .arabic { 
             font-family: 'Amiri', serif; 
         }
+        .signature-font {
+            font-family: 'Great Vibes', cursive;
+        }
 
         /* --- UI Components --- */
         .sidebar {
-            background-color: var(--primary-green);
+            background: linear-gradient(180deg, var(--primary-green) 0%, #065f46 100%);
         }
         .nav-link:hover {
-            background-color: #047857;
+            background-color: rgba(255, 255, 255, 0.1);
             border-left-color: var(--primary-gold);
         }
         .btn-primary {
             background-color: var(--primary-green);
             color: white;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
         }
         .btn-primary:hover {
-            background-color: #047857;
+            background-color: #022c22;
+            transform: translateY(-1px);
         }
         .card-shadow {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e5e7eb;
         }
         
         /* Loading Overlay */
         #loading-overlay {
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.95);
             z-index: 9998;
         }
 
         /* Login Screen Overlay */
         #login-overlay {
-            background: linear-gradient(135deg, var(--primary-green) 0%, #10b981 100%);
+            background: linear-gradient(135deg, #064e3b 0%, #059669 100%);
             z-index: 9999; 
         }
 
         /* Modal */
         #custom-modal {
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 5000;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
         }
 
-        /* --- A4 Report Card Styles --- */
+        /* --- STAMP DESIGN --- */
+        .stamp-container {
+            position: absolute;
+            bottom: 60px;
+            right: 60px;
+            opacity: 0.8;
+            transform: rotate(-15deg);
+            pointer-events: none;
+        }
+        .stamp {
+            width: 140px;
+            height: 140px;
+            border: 4px double #b91c1c; /* Red border */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #b91c1c;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .stamp-inner {
+            width: 120px;
+            height: 120px;
+            border: 1px solid #b91c1c;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+        }
+        .stamp-text-curve {
+            font-size: 10px;
+            margin-bottom: 2px;
+        }
+        .stamp-approved {
+            font-size: 18px;
+            font-weight: 900;
+            border-top: 2px solid #b91c1c;
+            border-bottom: 2px solid #b91c1c;
+            padding: 2px 0;
+            margin: 5px 0;
+            letter-spacing: 1px;
+        }
+
+        /* --- A4 REPORT CARD STYLES (PREMIUM) --- */
         .a4-paper {
             width: 210mm;
             min-height: 297mm;
-            padding: 10mm 12mm;
-            margin: 10mm auto;
-            background: white;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            padding: 10mm;
+            margin: 20px auto;
+            background: #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
             position: relative;
-            border: 4px double var(--primary-green);
-            color: black;
-            page-break-after: always; /* Critical for Print All */
-            break-after: page;
+            color: #1f2937;
+            box-sizing: border-box;
+            /* Watermark background */
+            background-image: radial-gradient(#f3f4f6 1px, transparent 1px);
+            background-size: 20px 20px;
         }
+        
+        .report-border {
+            border: 2px solid var(--primary-green);
+            height: 100%;
+            padding: 8mm;
+            position: relative;
+        }
+        
+        .report-border::before {
+            content: "";
+            position: absolute;
+            top: 4px; left: 4px; right: 4px; bottom: 4px;
+            border: 1px solid var(--primary-gold);
+            pointer-events: none;
+        }
+
         .report-header {
-            border-bottom: 3px solid var(--primary-gold);
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 4px double var(--primary-green);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
         }
+        
+        .report-logo {
+            width: 80px;
+            height: 80px;
+            background-color: var(--primary-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .report-title h1 {
+            color: var(--primary-green);
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
+        }
+        .report-title p {
+            color: var(--primary-gold);
+            font-weight: 600;
+        }
+
+        .student-profile-img {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--primary-gold);
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-green);
+            margin-bottom: 20px;
+        }
+        
+        .info-item span:first-child {
+            font-weight: 600;
+            color: #4b5563;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        .info-item span:last-child {
+            font-weight: 700;
+            color: #111827;
+            font-size: 0.95rem;
+            margin-left: 8px;
+        }
+
         .report-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 1rem;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
         }
-        .report-table th, .report-table td {
-            border: 1px solid #000;
-            padding: 6px;
-            font-size: 0.85rem;
+        .report-table thead th {
+            background-color: var(--primary-green);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            border: 1px solid var(--primary-green);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
         }
-        .report-table th {
-            background-color: #f0fdf4;
-            color: var(--primary-green);
-            font-weight: bold;
-            text-align: center;
+        .report-table tbody td {
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            color: #374151;
+        }
+        .report-table tbody tr:nth-child(even) {
+            background-color: #f9fafb;
         }
         .report-table td.center { text-align: center; }
-        
-        /* Receipt Paper */
-        .receipt-paper {
-            width: 80mm;
-            min-height: 100mm;
+        .report-table td.bold { font-weight: 700; }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .summary-box {
             background: white;
-            padding: 5mm;
-            margin: 10mm auto;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            font-family: 'Courier New', Courier, monospace;
-            border: 1px dashed #ccc;
-            page-break-after: always;
+            border: 1px solid #e5e7eb;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .summary-label { font-size: 0.7rem; color: #6b7280; text-transform: uppercase; font-weight: 600; }
+        .summary-value { font-size: 1.25rem; font-weight: 800; color: var(--primary-green); }
+
+        .grade-scale {
+            font-size: 0.7rem;
+            color: #6b7280;
+            margin-top: 10px;
+            text-align: center;
+            border-top: 1px dashed #ccc;
+            padding-top: 5px;
         }
 
-        /* --- Printing Styles - FIXED --- */
+        .footer-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .signature-box {
+            text-align: center;
+            width: 200px;
+        }
+        .signature-line {
+            border-bottom: 2px solid #000;
+            margin-bottom: 5px;
+            height: 40px; /* Space for signature */
+        }
+
+        /* --- RECEIPT STYLES --- */
+        .receipt-paper {
+            width: 80mm;
+            background: #fff;
+            padding: 5mm;
+            margin: 20px auto;
+            font-family: 'Courier New', Courier, monospace;
+            border: 1px solid #e5e7eb;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .receipt-header {
+            text-align: center;
+            border-bottom: 2px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .receipt-logo {
+            font-size: 24px;
+            color: #000;
+            margin-bottom: 5px;
+        }
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .receipt-total {
+            border-top: 2px dashed #000;
+            border-bottom: 2px dashed #000;
+            padding: 10px 0;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .receipt-footer {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 20px;
+        }
+
+        /* --- PRINTING FIXES --- */
         @media print {
-            body, html {
-                background: white;
-                height: auto !important;
-                overflow: visible !important;
+            @page { margin: 0; size: auto; }
+            body { 
+                background: white; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
             }
             
-            /* Hide the web app UI completely */
             #app-container, #login-overlay, #custom-modal, #loading-overlay {
                 display: none !important;
             }
 
-            /* Show printable areas */
             #printable-area, #receipt-preview-area {
                 display: block !important;
-                position: relative !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                height: auto !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: visible !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
                 visibility: visible !important;
             }
             
-            #printable-area * {
-                visibility: visible !important;
-            }
-
-            /* Reset A4 Paper for Print */
             .a4-paper {
-                margin: 0 auto !important;
+                margin: 0 !important;
                 box-shadow: none !important;
-                border: 2px solid black !important;
                 width: 100% !important;
+                page-break-after: always;
                 min-height: 297mm;
-                page-break-inside: avoid;
+                /* Removes background pattern for print if causing ink waste, usually better to keep for aesthetics if desired */
             }
 
             .receipt-paper {
                 width: 100% !important;
-                margin: 0 !important;
-                border: none !important;
+                margin: 0 auto !important;
                 box-shadow: none !important;
+                border: none !important;
+                page-break-after: always;
             }
+            
+            /* Ensure colors print */
+            * { -webkit-print-color-adjust: exact !important;   print-color-adjust: exact !important; }
         }
 
-        /* Mobile Adjustments */
+        /* Mobile Fixes */
         @media (max-width: 768px) {
-            .a4-paper { width: 100%; padding: 5mm; zoom: 0.6; }
-            .receipt-paper { width: 100%; }
-            
-            /* Fix Content Hiding */
-            #content-area {
-                padding-bottom: 100px; /* Ensure space for scrolling past footer */
-            }
-            
-            /* Sidebar Z-Index fix */
-            #sidebar {
-                position: fixed;
-                height: 100%;
-                z-index: 50;
-            }
+            .a4-paper { transform: scale(0.55); transform-origin: top center; margin-bottom: -120mm; }
+            .receipt-paper { transform: scale(0.9); transform-origin: top center; }
+            #content-area { padding-bottom: 120px; }
         }
     </style>
 </head>
@@ -193,29 +393,29 @@
     <!-- LOADING OVERLAY -->
     <div id="loading-overlay" class="fixed inset-0 flex flex-col justify-center items-center hidden">
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-600 mb-4"></div>
-        <p class="text-green-800 font-bold animate-pulse">Syncing with Database...</p>
+        <p class="text-green-800 font-bold animate-pulse">Processing...</p>
     </div>
 
     <!-- LOGIN SCREEN -->
     <div id="login-overlay" class="fixed top-0 left-0 w-full h-full flex justify-center items-center">
         <div class="bg-white p-8 rounded-2xl shadow-2xl w-96 text-center transform transition-all duration-300 card-shadow">
-            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-green-500">
-                <i class="fas fa-school text-4xl text-green-600"></i>
+            <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-green-600">
+                <i class="fas fa-book-reader text-4xl text-green-700"></i>
             </div>
             <h2 class="text-3xl font-bold text-gray-800 mb-2">Portal Access</h2>
-            <p class="text-gray-500 mb-6 text-sm">Nurul Bayan Admin Login</p>
+            <p class="text-gray-500 mb-6 text-sm">Nurul Bayan Administration</p>
             <form id="login-form">
-                <input type="text" id="username" placeholder="Username" class="w-full p-3 mb-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500" required>
-                <input type="password" id="password" placeholder="Password" class="w-full p-3 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500" required>
-                <p id="login-message" class="text-red-500 text-sm mb-4 hidden font-medium">Invalid Credentials. Try Edu / Edu123</p>
-                <button type="submit" class="w-full bg-yellow-500 text-gray-900 p-3 rounded-xl font-semibold hover:bg-yellow-600 transition shadow-md">Secure Login</button>
+                <input type="text" id="username" placeholder="Username" class="w-full p-3 mb-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-600 bg-gray-50" required>
+                <input type="password" id="password" placeholder="Password" class="w-full p-3 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-600 bg-gray-50" required>
+                <p id="login-message" class="text-red-500 text-sm mb-4 hidden font-medium bg-red-50 p-2 rounded">Invalid Credentials. Try Edu / Edu123</p>
+                <button type="submit" class="w-full bg-yellow-500 text-gray-900 p-3 rounded-xl font-bold hover:bg-yellow-600 transition shadow-lg">Login to Dashboard</button>
             </form>
         </div>
     </div>
 
     <!-- CUSTOM MODAL -->
     <div id="custom-modal" class="fixed inset-0 hidden flex items-center justify-center">
-        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full mx-4 overflow-hidden transform transition-all scale-100">
+        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full mx-4 overflow-hidden transform transition-all scale-100 border-t-4 border-green-600">
             <div id="modal-header" class="p-4 border-b">
                 <h3 id="modal-title" class="font-bold text-lg">Notification</h3>
             </div>
@@ -223,7 +423,7 @@
                 <p id="modal-body" class="text-gray-600">Message goes here.</p>
             </div>
             <div class="p-4 border-t bg-gray-50 flex justify-end">
-                <button id="btn-close-modal" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium">Close</button>
+                <button id="btn-close-modal" class="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium transition">Close</button>
             </div>
         </div>
     </div>
@@ -232,13 +432,13 @@
     <div id="app-container" class="hidden flex h-screen overflow-hidden">
         
         <!-- SIDEBAR -->
-        <aside id="sidebar" class="sidebar w-64 text-white flex flex-col transition-all duration-300 transform -translate-x-full md:translate-x-0">
-            <div class="p-6 text-center border-b border-green-800">
-                <div class="w-16 h-16 bg-white rounded-full mx-auto mb-2 flex items-center justify-center text-green-800 text-2xl font-bold">NB</div>
-                <h1 class="text-xl font-bold text-yellow-500">NURUL BAYAN</h1>
-                <p class="text-xs text-green-200 mt-1 arabic">أكاديمية نور البيان للعلوم</p>
+        <aside id="sidebar" class="sidebar w-64 text-white flex flex-col transition-all duration-300 transform -translate-x-full md:translate-x-0 absolute md:relative z-20 h-full shadow-2xl">
+            <div class="p-6 text-center border-b border-green-700/50">
+                <div class="w-16 h-16 bg-white rounded-full mx-auto mb-3 flex items-center justify-center text-green-800 text-2xl font-bold shadow-lg">NB</div>
+                <h1 class="text-xl font-bold text-yellow-400">NURUL BAYAN</h1>
+                <p class="text-xs text-green-100 mt-1 arabic">أكاديمية نور البيان للعلوم</p>
             </div>
-            <nav class="flex-1 overflow-y-auto py-4">
+            <nav class="flex-1 overflow-y-auto py-4 space-y-1">
                 <a id="nav-dashboard" class="nav-link cursor-pointer block py-3 px-6 border-l-4 border-transparent transition"><i class="fas fa-chart-line w-6"></i> Dashboard</a>
                 <a id="nav-students" class="nav-link cursor-pointer block py-3 px-6 border-l-4 border-transparent transition"><i class="fas fa-user-plus w-6"></i> Students</a>
                 <a id="nav-subjects" class="nav-link cursor-pointer block py-3 px-6 border-l-4 border-transparent transition"><i class="fas fa-book w-6"></i> Subjects</a>
@@ -246,210 +446,232 @@
                 <a id="nav-reports" class="nav-link cursor-pointer block py-3 px-6 border-l-4 border-transparent transition"><i class="fas fa-print w-6"></i> Report Cards</a>
                 <a id="nav-finance" class="nav-link cursor-pointer block py-3 px-6 border-l-4 border-transparent transition"><i class="fas fa-receipt w-6"></i> Fee Receipts</a>
             </nav>
-            <div class="p-4 border-t border-green-800">
-                <button id="btn-logout" class="w-full py-2 bg-red-600 rounded-xl text-sm font-semibold hover:bg-red-700 transition">Logout</button>
+            <div class="p-4 border-t border-green-700/50">
+                <button id="btn-logout" class="w-full py-2 bg-red-600/80 rounded-xl text-sm font-semibold hover:bg-red-600 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
             </div>
         </aside>
         
         <!-- OVERLAY FOR MOBILE SIDEBAR -->
-        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-10 hidden md:hidden"></div>
 
         <!-- MAIN CONTENT -->
         <main class="flex-1 flex flex-col h-full relative w-full">
             <!-- HEADER -->
-            <header class="bg-white shadow-lg p-4 flex justify-between items-center z-10 sticky top-0">
-                <button id="btn-toggle-sidebar" class="text-gray-600 md:hidden focus:outline-none">
-                    <i class="fas fa-bars text-2xl"></i>
+            <header class="bg-white shadow-sm p-4 flex justify-between items-center z-10 sticky top-0 border-b">
+                <button id="btn-toggle-sidebar" class="text-gray-600 md:hidden focus:outline-none p-2 rounded hover:bg-gray-100">
+                    <i class="fas fa-bars text-xl"></i>
                 </button>
-                <h2 class="text-xl font-bold text-gray-700" id="page-title">Dashboard</h2>
+                <h2 class="text-xl font-bold text-gray-800" id="page-title">Dashboard</h2>
                 <div class="flex items-center space-x-3">
-                    <p class="text-sm font-medium hidden md:block text-gray-500">Admin Staff</p>
-                    <div class="w-10 h-10 rounded-full bg-yellow-500 text-gray-900 flex items-center justify-center font-bold shadow-md">A</div>
+                    <div class="text-right hidden md:block">
+                        <p class="text-sm font-bold text-gray-700">Administrator</p>
+                        <p class="text-xs text-green-600">Online</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-yellow-100 text-yellow-700 flex items-center justify-center font-bold border border-yellow-200">A</div>
                 </div>
             </header>
 
             <!-- CONTENT VIEWS -->
-            <div id="content-area" class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50">
+            <div id="content-area" class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50/50">
                 
                 <!-- 1. DASHBOARD -->
-                <div id="view-dashboard" class="space-y-8">
+                <div id="view-dashboard" class="space-y-8 animate-fade-in">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-white p-6 rounded-2xl card-shadow border-b-4 border-yellow-500 flex items-center justify-between">
+                        <div class="bg-white p-6 rounded-2xl card-shadow border-l-4 border-green-600 flex items-center justify-between">
                             <div>
-                                <p class="text-gray-500 text-sm">Total Students</p>
-                                <h3 class="text-4xl font-extrabold text-primary-green" id="stat-students">0</h3>
+                                <p class="text-gray-500 text-sm font-semibold uppercase tracking-wide">Total Students</p>
+                                <h3 class="text-4xl font-extrabold text-gray-800 mt-1" id="stat-students">0</h3>
                             </div>
-                            <i class="fas fa-users text-5xl text-green-100"></i>
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                                <i class="fas fa-users text-xl"></i>
+                            </div>
                         </div>
-                        <div class="bg-white p-6 rounded-2xl card-shadow border-b-4 border-blue-500 flex items-center justify-between">
+                        <div class="bg-white p-6 rounded-2xl card-shadow border-l-4 border-blue-600 flex items-center justify-between">
                             <div>
-                                <p class="text-gray-500 text-sm">Active Classes</p>
-                                <h3 class="text-4xl font-extrabold text-blue-700" id="stat-classes">0</h3>
+                                <p class="text-gray-500 text-sm font-semibold uppercase tracking-wide">Active Classes</p>
+                                <h3 class="text-4xl font-extrabold text-gray-800 mt-1" id="stat-classes">0</h3>
                             </div>
-                            <i class="fas fa-chalkboard-teacher text-5xl text-blue-100"></i>
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                                <i class="fas fa-chalkboard text-xl"></i>
+                            </div>
                         </div>
-                        <div class="bg-white p-6 rounded-2xl card-shadow border-b-4 border-red-500 flex items-center justify-between">
+                        <div class="bg-white p-6 rounded-2xl card-shadow border-l-4 border-yellow-500 flex items-center justify-between">
                             <div>
-                                <p class="text-gray-500 text-sm">Taught Subjects</p>
-                                <h3 class="text-4xl font-extrabold text-red-700" id="stat-subjects">0</h3>
+                                <p class="text-gray-500 text-sm font-semibold uppercase tracking-wide">Subjects</p>
+                                <h3 class="text-4xl font-extrabold text-gray-800 mt-1" id="stat-subjects">0</h3>
                             </div>
-                            <i class="fas fa-book-open text-5xl text-red-100"></i>
+                            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600">
+                                <i class="fas fa-book-open text-xl"></i>
+                            </div>
                         </div>
                     </div>
 
                     <div class="bg-white p-6 rounded-2xl card-shadow">
-                        <h3 class="font-bold text-xl mb-4 text-gray-700 border-b pb-2">Quick Access</h3>
+                        <h3 class="font-bold text-lg mb-4 text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-bolt text-yellow-500"></i> Quick Actions
+                        </h3>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <button class="quick-nav p-4 bg-green-50 rounded-xl text-green-800 hover:bg-green-100 transition flex flex-col items-center shadow-md" data-target="students">
-                                <i class="fas fa-user-graduate mb-2 text-2xl"></i> New Admission
+                            <button class="quick-nav p-4 bg-green-50 rounded-xl text-green-800 hover:bg-green-100 transition flex flex-col items-center border border-green-100 hover:shadow-md" data-target="students">
+                                <i class="fas fa-user-plus mb-3 text-2xl"></i> <span class="font-semibold text-sm">Admission</span>
                             </button>
-                            <button class="quick-nav p-4 bg-yellow-50 rounded-xl text-yellow-800 hover:bg-yellow-100 transition flex flex-col items-center shadow-md" data-target="marks">
-                                <i class="fas fa-marker mb-2 text-2xl"></i> Input Scores
+                            <button class="quick-nav p-4 bg-yellow-50 rounded-xl text-yellow-800 hover:bg-yellow-100 transition flex flex-col items-center border border-yellow-100 hover:shadow-md" data-target="marks">
+                                <i class="fas fa-edit mb-3 text-2xl"></i> <span class="font-semibold text-sm">Marks Entry</span>
                             </button>
-                            <button class="quick-nav p-4 bg-blue-50 rounded-xl text-blue-800 hover:bg-blue-100 transition flex flex-col items-center shadow-md" data-target="finance">
-                                <i class="fas fa-wallet mb-2 text-2xl"></i> Fee Management
+                            <button class="quick-nav p-4 bg-blue-50 rounded-xl text-blue-800 hover:bg-blue-100 transition flex flex-col items-center border border-blue-100 hover:shadow-md" data-target="finance">
+                                <i class="fas fa-money-bill-wave mb-3 text-2xl"></i> <span class="font-semibold text-sm">Fees</span>
                             </button>
-                            <button class="quick-nav p-4 bg-red-50 rounded-xl text-red-800 hover:bg-red-100 transition flex flex-col items-center shadow-md" data-target="reports">
-                                <i class="fas fa-file-pdf mb-2 text-2xl"></i> Generate Reports
+                            <button class="quick-nav p-4 bg-red-50 rounded-xl text-red-800 hover:bg-red-100 transition flex flex-col items-center border border-red-100 hover:shadow-md" data-target="reports">
+                                <i class="fas fa-print mb-3 text-2xl"></i> <span class="font-semibold text-sm">Reports</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- 2. STUDENTS -->
-                <div id="view-students" class="hidden space-y-8">
+                <div id="view-students" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-2xl card-shadow">
-                        <h3 class="font-bold text-xl mb-4 text-primary-green border-b pb-2">New Student Admission Form</h3>
+                        <h3 class="font-bold text-xl mb-6 text-green-800 border-b pb-2">Student Registration</h3>
                         <form id="form-add-student" class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-                                <input type="text" id="std-name" class="w-full p-3 border border-gray-300 rounded-xl" required>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
+                                <input type="text" id="std-name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition" placeholder="e.g. Ibrahim Yusuf" required>
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Class</label>
-                                <select id="std-class" class="w-full p-3 border border-gray-300 rounded-xl" required>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Class</label>
+                                <select id="std-class" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition" required>
                                     <!-- Options populated by JS -->
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Gender</label>
-                                <select id="std-gender" class="w-full p-3 border border-gray-300 rounded-xl">
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Gender</label>
+                                <select id="std-gender" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition">
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
                                 </select>
                             </div>
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Photo (Optional)</label>
-                                <input type="file" id="std-photo" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100">
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Passport Photo</label>
+                                <div class="flex items-center gap-4">
+                                    <input type="file" id="std-photo" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:bg-green-50 file:text-green-700 hover:file:bg-green-100 file:border-0 file:font-semibold">
+                                </div>
                             </div>
                             <div class="flex items-end">
-                                <button type="submit" class="btn-primary w-full px-6 py-3 rounded-xl font-semibold shadow-md">Admit Student</button>
+                                <button type="submit" class="btn-primary w-full px-6 py-3 rounded-lg font-bold shadow-md hover:shadow-lg">
+                                    <i class="fas fa-save mr-2"></i> Register Student
+                                </button>
                             </div>
                         </form>
                     </div>
 
-                    <div class="bg-white p-6 rounded-2xl card-shadow overflow-hidden">
-                        <h3 class="font-bold text-xl mb-4">Registered Students</h3>
-                        <div class="flex gap-4 mb-4 items-center flex-wrap">
-                             <span class="text-sm font-medium">Filter by Class:</span>
-                             <select id="filter-class" class="p-2 border rounded-lg text-sm bg-gray-50">
-                                <option value="All">All Classes</option>
-                             </select>
+                    <div class="bg-white p-6 rounded-2xl card-shadow">
+                        <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+                            <h3 class="font-bold text-lg text-gray-700">Student Directory</h3>
+                             <div class="flex items-center gap-2">
+                                 <span class="text-sm font-medium text-gray-500">Filter:</span>
+                                 <select id="filter-class" class="p-2 border rounded-lg text-sm bg-gray-50 focus:ring-1 focus:ring-green-500">
+                                    <option value="All">All Classes</option>
+                                 </select>
+                             </div>
                         </div>
-                        <div class="overflow-x-auto">
+                        <div class="overflow-x-auto rounded-lg border">
                             <table class="w-full text-left border-collapse min-w-[600px]">
-                                <thead>
-                                    <tr class="bg-gray-100 text-gray-600 text-sm uppercase">
-                                        <th class="p-3">Photo</th>
-                                        <th class="p-3">Name</th>
-                                        <th class="p-3">Class</th>
-                                        <th class="p-3">Gender</th>
-                                        <th class="p-3">Action</th>
+                                <thead class="bg-gray-50">
+                                    <tr class="text-gray-500 text-xs uppercase tracking-wider">
+                                        <th class="p-4 font-bold">Passport</th>
+                                        <th class="p-4 font-bold">Full Name</th>
+                                        <th class="p-4 font-bold">Class</th>
+                                        <th class="p-4 font-bold">Gender</th>
+                                        <th class="p-4 font-bold text-right">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="student-table-body" class="text-sm"></tbody>
+                                <tbody id="student-table-body" class="text-sm divide-y"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
                 <!-- 3. SUBJECTS -->
-                <div id="view-subjects" class="hidden space-y-8">
+                <div id="view-subjects" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-2xl card-shadow">
-                        <h3 class="font-bold text-xl mb-4 text-primary-green border-b pb-2">Manage Academic Subjects</h3>
-                        <form id="form-add-subject" class="flex flex-col md:flex-row gap-4">
-                            <input type="text" id="sub-name" placeholder="Enter Subject Name" class="flex-1 p-3 border rounded-xl" required>
-                            <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 font-semibold">Add Subject</button>
+                        <h3 class="font-bold text-xl mb-6 text-green-800 border-b pb-2">Academic Subjects</h3>
+                        <form id="form-add-subject" class="flex flex-col md:flex-row gap-4 mb-8 bg-gray-50 p-4 rounded-xl border">
+                            <input type="text" id="sub-name" placeholder="Enter Subject Name (e.g. Basic Science)" class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-green-500 outline-none" required>
+                            <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-bold shadow-md whitespace-nowrap">
+                                <i class="fas fa-plus-circle mr-2"></i> Add Subject
+                            </button>
                         </form>
                         
-                        <div class="mt-8">
-                            <h4 class="font-bold text-lg text-gray-700 mb-3">Current Subjects List</h4>
-                            <div id="subject-list" class="flex flex-wrap gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200"></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-gray-500 uppercase mb-3">Active Curriculum</h4>
+                            <div id="subject-list" class="flex flex-wrap gap-3"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 4. MARKS -->
-                <div id="view-marks" class="hidden space-y-8">
+                <div id="view-marks" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-2xl card-shadow">
-                        <h3 class="font-bold text-xl mb-4 text-primary-green border-b pb-2">Input Scores</h3>
+                        <h3 class="font-bold text-xl mb-6 text-green-800 border-b pb-2">Score Entry</h3>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                            <select id="marks-class" class="p-3 border rounded-xl w-full bg-gray-50">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 bg-gray-50 p-4 rounded-xl border">
+                            <select id="marks-class" class="p-3 border rounded-lg w-full focus:ring-2 focus:ring-green-500">
                                 <option value="">Select Class</option>
                             </select>
-                            <select id="marks-term" class="p-3 border rounded-xl w-full bg-gray-50">
+                            <select id="marks-term" class="p-3 border rounded-lg w-full focus:ring-2 focus:ring-green-500">
                                 <option value="First Term">First Term</option>
                                 <option value="Second Term">Second Term</option>
                                 <option value="Third Term">Third Term</option>
                             </select>
-                            <select id="marks-subject" class="p-3 border rounded-xl w-full bg-gray-50">
+                            <select id="marks-subject" class="p-3 border rounded-lg w-full focus:ring-2 focus:ring-green-500">
                                 <option value="">Select Subject</option>
                             </select>
-                            <button id="btn-save-marks" class="bg-yellow-500 text-gray-900 p-3 rounded-xl font-semibold hover:bg-yellow-600 transition shadow-md">Save All Scores</button>
+                            <button id="btn-save-marks" class="bg-yellow-500 text-gray-900 p-3 rounded-lg font-bold hover:bg-yellow-600 transition shadow-md">
+                                <i class="fas fa-save mr-2"></i> Save All
+                            </button>
                         </div>
                         
-                        <div class="overflow-x-auto border rounded-xl">
+                        <div class="overflow-x-auto rounded-lg border">
                             <table class="w-full text-left border-collapse min-w-[600px]">
-                                <thead>
-                                    <tr class="bg-gray-800 text-white text-sm uppercase">
-                                        <th class="p-3 w-1/3">Student Name</th>
-                                        <th class="p-3 w-20">C.A (40)</th>
-                                        <th class="p-3 w-20">Exam (60)</th>
-                                        <th class="p-3 w-20">Total (100)</th>
-                                        <th class="p-3 w-20">Grade</th>
+                                <thead class="bg-gray-800 text-white">
+                                    <tr class="text-xs uppercase tracking-wider">
+                                        <th class="p-4 w-1/3">Student Name</th>
+                                        <th class="p-4 w-24">C.A (40)</th>
+                                        <th class="p-4 w-24">Exam (60)</th>
+                                        <th class="p-4 w-24">Total</th>
+                                        <th class="p-4 w-24">Grade</th>
                                     </tr>
                                 </thead>
-                                <tbody id="marks-table-body" class="text-sm"></tbody>
+                                <tbody id="marks-table-body" class="text-sm divide-y"></tbody>
                             </table>
-                            <div id="no-marks-msg" class="text-center py-8 text-gray-500">
-                                <i class="fas fa-exclamation-circle mr-2"></i> Select Class, Term, and Subject to enter marks.
+                            <div id="no-marks-msg" class="text-center py-12 text-gray-400">
+                                <i class="fas fa-clipboard-list text-4xl mb-3 opacity-20"></i>
+                                <p>Select Class, Term, and Subject to begin scoring.</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 5. REPORTS -->
-                <div id="view-reports" class="hidden space-y-8">
+                <div id="view-reports" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-2xl card-shadow no-print">
-                        <h3 class="font-bold text-xl mb-4 text-primary-green border-b pb-2">Report Cards</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            <select id="report-class" class="p-3 border rounded-xl bg-gray-50">
+                        <h3 class="font-bold text-xl mb-6 text-green-800 border-b pb-2">Report Management</h3>
+                        <div class="flex flex-col md:flex-row gap-4 mb-6 bg-green-50 p-4 rounded-xl border border-green-100">
+                            <select id="report-class" class="p-3 border rounded-lg flex-1 focus:ring-2 focus:ring-green-500">
                                 <option value="">Select Class</option>
                             </select>
-                            <select id="report-term" class="p-3 border rounded-xl bg-gray-50">
+                            <select id="report-term" class="p-3 border rounded-lg flex-1 focus:ring-2 focus:ring-green-500">
                                 <option value="First Term">First Term</option>
                                 <option value="Second Term">Second Term</option>
                                 <option value="Third Term">Third Term</option>
                             </select>
-                            <div class="flex gap-2">
-                                <button id="btn-print-all" class="bg-red-600 text-white px-4 py-3 rounded-xl text-sm flex-1 hover:bg-red-700 font-semibold shadow-md">
-                                    <i class="fas fa-print"></i> Print All
-                                </button>
-                            </div>
+                            <button id="btn-print-all" class="bg-red-600 text-white px-6 py-3 rounded-lg font-bold shadow-md hover:bg-red-700 transition flex items-center justify-center gap-2">
+                                <i class="fas fa-print"></i> Print Entire Class
+                            </button>
                         </div>
-                        <div id="report-student-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                            <div class="md:col-span-4 text-center text-gray-500">Select Class and Term to view students.</div>
+                        <div id="report-student-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div class="md:col-span-4 text-center text-gray-400 py-8">Select criteria to view students.</div>
                         </div>
                     </div>
 
@@ -458,16 +680,29 @@
                 </div>
 
                 <!-- 6. FINANCE -->
-                <div id="view-finance" class="hidden space-y-8">
+                <div id="view-finance" class="hidden space-y-6">
                     <div class="bg-white p-6 rounded-2xl card-shadow no-print">
-                        <h3 class="font-bold text-xl mb-4 text-primary-green border-b pb-2">Fee Receipts</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <select id="receipt-student" class="p-3 border rounded-xl bg-gray-50 col-span-1 md:col-span-2">
-                                <option value="">Select Student</option>
-                            </select>
-                             <input type="number" id="fee-amount" placeholder="Amount (₦)" class="p-3 border rounded-xl">
-                             <input type="text" id="fee-purpose" placeholder="Purpose (e.g. School Fees)" class="p-3 border rounded-xl">
-                             <button id="btn-generate-receipt" class="bg-yellow-500 text-gray-900 p-3 rounded-xl font-semibold hover:bg-yellow-600 transition shadow-md col-span-1 md:col-span-1">Generate</button>
+                        <h3 class="font-bold text-xl mb-6 text-green-800 border-b pb-2">Fee Receipt Generator</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-xl border">
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Student</label>
+                                <select id="receipt-student" class="p-3 border rounded-lg w-full focus:ring-2 focus:ring-green-500">
+                                    <option value="">Select Student</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Amount (₦)</label>
+                                <input type="number" id="fee-amount" placeholder="0.00" class="p-3 border rounded-lg w-full focus:ring-2 focus:ring-green-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Payment For</label>
+                                <input type="text" id="fee-purpose" placeholder="e.g. Tuition Fee" class="p-3 border rounded-lg w-full focus:ring-2 focus:ring-green-500">
+                            </div>
+                            <div class="md:col-span-2 pt-2">
+                                <button id="btn-generate-receipt" class="bg-yellow-500 text-gray-900 w-full p-3 rounded-lg font-bold hover:bg-yellow-600 transition shadow-md">
+                                    <i class="fas fa-file-invoice-dollar mr-2"></i> Generate Receipt
+                                </button>
+                            </div>
                         </div>
                     </div>
                       <!-- Receipt Preview Container -->
@@ -477,42 +712,36 @@
             </div>
 
             <!-- FOOTER -->
-            <footer class="bg-gray-800 text-white text-center py-3 text-xs z-10 w-full mt-auto">
-                <p>Developed by Abu-Abdurrahman CodeVerge Technology | +2348107907647</p>
+            <footer class="bg-white border-t p-4 text-center text-xs text-gray-500 z-10 w-full mt-auto">
+                <p>&copy; 2025 Nurul Bayan Science Academy. Powered by CodeVerge Technology.</p>
             </footer>
         </main>
     </div>
 
     <!-- FIREBASE & APP LOGIC -->
     <script type="module">
-        // Import Firebase functions from the version requested
+        // Import Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
         import { getFirestore, collection, getDocs, setDoc, doc, addDoc, deleteDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
-        // Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB3nMQMbc_nlQqcKUEsH-puraiUzrXQLY0",
             authDomain: "nurul-bayan-science-academy.firebaseapp.com",
             projectId: "nurul-bayan-science-academy",
             storageBucket: "nurul-bayan-science-academy.firebasestorage.app",
             messagingSenderId: "86444557578",
-            appId: "1:86444557578:web:ec17056fa02214e4b126f3",
-            measurementId: "G-NQ2Q9RLLSC"
+            appId: "1:86444557578:web:ec17056fa02214e4b126f3"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const dbFirestore = getFirestore(app);
         const auth = getAuth(app);
-        const analytics = getAnalytics(app);
 
-        // --- GLOBAL VARIABLES & STATE ---
+        // --- GLOBAL VARIABLES ---
         const CREDENTIALS = { user: 'Edu', pass: 'Edu123' };
         const CLASSES = ['Nursery 1', 'Nursery 2', 'Primary 1', 'Primary 2', 'Primary 3', 'Primary 4', 'Primary 5', 'Primary 6', 'Hafeez', 'Pre-Nursery'];
         
-        // Local Cache of Database
         let db = {
             students: [],
             subjects: ['Mathematics', 'English', 'Basic Science', 'Islamic Studies', 'Arabic', 'Hausa', 'Social Studies'],
@@ -520,30 +749,27 @@
             fees: []
         };
 
-        // --- HELPER FUNCTIONS FOR GLOBAL ACCESS ---
-        // We attach these to window because they are called by inline HTML or constructed HTML strings
+        // --- HELPER FUNCTIONS ---
         window.deleteStudent = async (id) => {
-            if(confirm('Are you sure you want to delete this student record?')) {
+            if(confirm('Delete this student permanently?')) {
                 showLoading(true);
                 try {
                     await deleteDoc(doc(dbFirestore, "students", id));
-                    // Also try delete marks
                     try { await deleteDoc(doc(dbFirestore, "marks", id)); } catch(e){}
                     await syncData();
                     renderStudentList();
-                    showModal('Success', 'Student deleted.', 'success');
+                    showModal('Success', 'Student record deleted.', 'success');
                 } catch(e) {
-                    showModal('Error', 'Failed to delete: ' + e.message, 'error');
+                    showModal('Error', e.message, 'error');
                 }
                 showLoading(false);
             }
         };
 
         window.deleteSubject = async (name) => {
-            if(confirm('Delete this subject?')) {
+            if(confirm('Delete ' + name + '?')) {
                 showLoading(true);
                 try {
-                    // Update the single subjects doc
                     const newSubjects = db.subjects.filter(s => s !== name);
                     await setDoc(doc(dbFirestore, "settings", "academic"), { subjects: newSubjects });
                     await syncData();
@@ -557,7 +783,7 @@
         };
 
         window.generateReportCard = (studentId, term) => {
-            renderReportCardHTML(studentId, term, false); // false = single mode
+            renderReportCardHTML(studentId, term, false);
         };
         
         window.closeModal = () => {
@@ -565,9 +791,7 @@
         };
 
         // --- CORE FUNCTIONS ---
-        
         async function initApp() {
-            // Check auth
             if(!sessionStorage.getItem('isLoggedIn')) {
                 document.getElementById('login-overlay').classList.remove('hidden');
             } else {
@@ -575,51 +799,49 @@
                 document.getElementById('app-container').classList.remove('hidden');
                 await connectDB();
             }
-
-            // Event Listeners
             setupEventListeners();
         }
 
         async function connectDB() {
             showLoading(true);
             try {
-                // Ensure anonymous auth for Firestore rules
                 await signInAnonymously(auth);
                 await syncData();
             } catch (error) {
-                console.error("DB Connection Error:", error);
-                showModal('Database Error', 'Could not connect to Firebase: ' + error.message, 'error');
+                console.error("DB Error:", error);
+                showModal('Connection Error', error.message, 'error');
             }
             showLoading(false);
         }
 
         async function syncData() {
-            // 1. Fetch Students
+            // Students
             const studSnap = await getDocs(collection(dbFirestore, "students"));
             db.students = [];
             studSnap.forEach(doc => {
                 db.students.push({ id: doc.id, ...doc.data() });
             });
 
-            // 2. Fetch Subjects (stored in settings/academic or create default)
+            // Subjects (Fixing the add issue by always fetching fresh)
             try {
                 const subDoc = await getDoc(doc(dbFirestore, "settings", "academic"));
                 if (subDoc.exists()) {
                     db.subjects = subDoc.data().subjects || [];
                 } else {
-                    // Initialize if not exists
-                    await setDoc(doc(dbFirestore, "settings", "academic"), { subjects: db.subjects });
+                    // Initial seed if empty
+                    if(db.subjects.length > 0) {
+                         await setDoc(doc(dbFirestore, "settings", "academic"), { subjects: db.subjects });
+                    }
                 }
-            } catch (e) { console.log("Subjects init error", e); }
+            } catch (e) { console.log("Sub Sync", e); }
 
-            // 3. Fetch Marks
+            // Marks
             const marksSnap = await getDocs(collection(dbFirestore, "marks"));
             db.marks = {};
             marksSnap.forEach(doc => {
                 db.marks[doc.id] = doc.data();
             });
 
-            // Refresh UI
             renderDashboard();
             populateDropdowns();
         }
@@ -650,7 +872,7 @@
                 btn.addEventListener('click', () => navigate(btn.dataset.target));
             });
 
-            // Sidebar Toggle
+            // Sidebar
             document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
                 document.getElementById('sidebar').classList.remove('-translate-x-full');
                 document.getElementById('sidebar-overlay').classList.remove('hidden');
@@ -659,35 +881,23 @@
                 document.getElementById('sidebar').classList.add('-translate-x-full');
                 document.getElementById('sidebar-overlay').classList.add('hidden');
             });
-
-            // Logout
             document.getElementById('btn-logout').addEventListener('click', () => {
                 sessionStorage.removeItem('isLoggedIn');
                 location.reload();
             });
 
-            // Forms
+            // Actions
             document.getElementById('form-add-student').addEventListener('submit', handleAddStudent);
             document.getElementById('form-add-subject').addEventListener('submit', handleAddSubject);
             document.getElementById('btn-save-marks').addEventListener('click', handleSaveMarks);
             document.getElementById('btn-generate-receipt').addEventListener('click', handleGenerateReceipt);
             document.getElementById('btn-print-all').addEventListener('click', handlePrintAll);
             document.getElementById('btn-close-modal').addEventListener('click', () => document.getElementById('custom-modal').classList.add('hidden'));
-
-            // Filter Change
             document.getElementById('filter-class').addEventListener('change', renderStudentList);
             
-            // Marks Dropdowns
-            ['marks-class', 'marks-term', 'marks-subject'].forEach(id => {
-                document.getElementById(id).addEventListener('change', loadMarksTable);
-            });
-            // Reports Dropdowns
-            ['report-class', 'report-term'].forEach(id => {
-                document.getElementById(id).addEventListener('change', loadReportStudents);
-            });
+            ['marks-class', 'marks-term', 'marks-subject'].forEach(id => document.getElementById(id).addEventListener('change', loadMarksTable));
+            ['report-class', 'report-term'].forEach(id => document.getElementById(id).addEventListener('change', loadReportStudents));
         }
-
-        // --- LOGIC FUNCTIONS ---
 
         function navigate(viewName) {
             ['dashboard', 'students', 'subjects', 'marks', 'reports', 'finance'].forEach(v => {
@@ -696,15 +906,15 @@
             document.getElementById('view-' + viewName).classList.remove('hidden');
             document.getElementById('page-title').innerText = viewName.charAt(0).toUpperCase() + viewName.slice(1);
             
-            // Mobile: close sidebar
+            // Mobile close sidebar
             document.getElementById('sidebar').classList.add('-translate-x-full');
             document.getElementById('sidebar-overlay').classList.add('hidden');
 
-            // Clear prints
             document.getElementById('printable-area').innerHTML = '';
             document.getElementById('receipt-preview-area').innerHTML = '';
 
             if(viewName === 'students') renderStudentList();
+            if(viewName === 'subjects') renderSubjects();
         }
 
         function showLoading(show) {
@@ -782,10 +992,9 @@
 
             const processSave = async (imgData) => {
                 try {
-                    const docRef = await addDoc(collection(dbFirestore, "students"), {
+                    await addDoc(collection(dbFirestore, "students"), {
                         name, class: cls, gender, photo: imgData || null
                     });
-                    // Refresh
                     await syncData();
                     renderStudentList();
                     e.target.reset();
@@ -825,22 +1034,22 @@
             
             const filtered = filter === 'All' ? db.students : db.students.filter(s => s.class === filter);
             if(filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">No students found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-400">No students found.</td></tr>';
                 return;
             }
 
             filtered.forEach(s => {
                 const tr = document.createElement('tr');
-                tr.className = 'border-b hover:bg-gray-50';
+                tr.className = 'border-b hover:bg-green-50/50 transition';
                 tr.innerHTML = `
-                    <td class="p-3">
-                         ${s.photo ? `<img src="${s.photo}" class="w-10 h-10 rounded-full object-cover border">` : '<div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500"><i class="fas fa-user"></i></div>'}
+                    <td class="p-4">
+                         ${s.photo ? `<img src="${s.photo}" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">` : `<div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold border-2 border-white shadow-sm">${s.name.charAt(0)}</div>`}
                     </td>
-                    <td class="p-3 font-medium">${s.name}</td>
-                    <td class="p-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs whitespace-nowrap">${s.class}</span></td>
-                    <td class="p-3 text-gray-500">${s.gender}</td>
-                    <td class="p-3">
-                        <button onclick="deleteStudent('${s.id}')" class="text-red-500 hover:text-red-700 transition"><i class="fas fa-trash"></i></button>
+                    <td class="p-4 font-semibold text-gray-700">${s.name}</td>
+                    <td class="p-4"><span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold border">${s.class}</span></td>
+                    <td class="p-4 text-gray-500">${s.gender}</td>
+                    <td class="p-4 text-right">
+                        <button onclick="deleteStudent('${s.id}')" class="text-red-400 hover:text-red-600 p-2"><i class="fas fa-trash-alt"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -851,20 +1060,31 @@
         async function handleAddSubject(e) {
             e.preventDefault();
             const val = document.getElementById('sub-name').value.trim();
-            if(val && !db.subjects.includes(val)) {
-                showLoading(true);
-                try {
-                    const newSubs = [...db.subjects, val];
-                    await setDoc(doc(dbFirestore, "settings", "academic"), { subjects: newSubs });
+            if(!val) return;
+
+            showLoading(true);
+            try {
+                // Fetch fresh to ensure we don't overwrite if db.subjects is stale
+                const docRef = doc(dbFirestore, "settings", "academic");
+                const snap = await getDoc(docRef);
+                let currentSubjects = [];
+                if(snap.exists()) currentSubjects = snap.data().subjects || [];
+                else currentSubjects = db.subjects; // fallback
+
+                if(!currentSubjects.includes(val)) {
+                    const newSubs = [...currentSubjects, val];
+                    await setDoc(docRef, { subjects: newSubs });
                     await syncData();
                     renderSubjects();
                     document.getElementById('sub-name').value = '';
                     showModal('Success', 'Subject added.', 'success');
-                } catch(err) {
-                    showModal('Error', err.message, 'error');
+                } else {
+                    showModal('Notice', 'Subject already exists.', 'error');
                 }
-                showLoading(false);
+            } catch(err) {
+                showModal('Error', err.message, 'error');
             }
+            showLoading(false);
         }
 
         function renderSubjects() {
@@ -872,14 +1092,13 @@
             div.innerHTML = '';
             db.subjects.forEach(s => {
                 const tag = document.createElement('div');
-                tag.className = 'bg-white border px-3 py-1 rounded-full text-sm flex items-center gap-2 shadow-sm';
-                tag.innerHTML = `${s} <button onclick="deleteSubject('${s}')" class="text-red-500 hover:text-red-700 ml-1"><i class="fas fa-times"></i></button>`;
+                tag.className = 'bg-white border px-4 py-2 rounded-lg text-sm flex items-center gap-3 shadow-sm hover:shadow-md transition text-gray-700';
+                tag.innerHTML = `<span class="font-medium">${s}</span> <button onclick="deleteSubject('${s}')" class="text-red-400 hover:text-red-600"><i class="fas fa-times"></i></button>`;
                 div.appendChild(tag);
             });
         }
 
         // --- MARKS ---
-        // Temp storage for UI editing before saving to DB
         window.tempMarks = {}; 
 
         function loadMarksTable() {
@@ -896,42 +1115,38 @@
             }
             msg.classList.add('hidden');
             tbody.innerHTML = '';
-            window.tempMarks = {}; // Reset
+            window.tempMarks = {};
 
             const students = db.students.filter(s => s.class === cls);
             if(students.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center">No students in this class.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-gray-500">No students registered in this class.</td></tr>';
                 return;
             }
 
             students.forEach(s => {
-                // Get existing mark from local DB cache
                 let ca = 0, exam = 0;
                 if(db.marks[s.id] && db.marks[s.id][term] && db.marks[s.id][term][sub]) {
                     ca = db.marks[s.id][term][sub].ca || 0;
                     exam = db.marks[s.id][term][sub].exam || 0;
                 }
                 
-                // Init temp obj for this student
                 window.tempMarks[s.id] = { ca, exam };
-
                 const total = parseInt(ca) + parseInt(exam);
                 const grade = getGrade(total);
 
                 const tr = document.createElement('tr');
-                tr.className = 'border-b';
+                tr.className = 'border-b hover:bg-gray-50';
                 tr.innerHTML = `
-                    <td class="p-3 font-medium">${s.name}</td>
-                    <td class="p-3"><input type="number" min="0" max="40" class="w-16 border rounded p-1" value="${ca}" onchange="updateTempMark('${s.id}', 'ca', this.value)"></td>
-                    <td class="p-3"><input type="number" min="0" max="60" class="w-16 border rounded p-1" value="${exam}" onchange="updateTempMark('${s.id}', 'exam', this.value)"></td>
-                    <td class="p-3 font-bold text-gray-700" id="total-${s.id}">${total}</td>
-                    <td class="p-3"><span id="grade-${s.id}" class="px-2 py-1 rounded text-xs font-bold ${getGradeColor(grade)}">${grade}</span></td>
+                    <td class="p-4 font-medium text-gray-800">${s.name}</td>
+                    <td class="p-4"><input type="number" min="0" max="40" class="w-20 border border-gray-300 rounded p-2 text-center focus:ring-2 focus:ring-green-500 outline-none" value="${ca}" onchange="updateTempMark('${s.id}', 'ca', this.value)"></td>
+                    <td class="p-4"><input type="number" min="0" max="60" class="w-20 border border-gray-300 rounded p-2 text-center focus:ring-2 focus:ring-green-500 outline-none" value="${exam}" onchange="updateTempMark('${s.id}', 'exam', this.value)"></td>
+                    <td class="p-4 font-bold text-gray-800 text-center" id="total-${s.id}">${total}</td>
+                    <td class="p-4 text-center"><span id="grade-${s.id}" class="px-3 py-1 rounded-full text-xs font-bold ${getGradeColor(grade)}">${grade}</span></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // Attached to window for inline calls
         window.updateTempMark = (id, type, val) => {
             val = parseInt(val) || 0;
             if(type === 'ca' && val > 40) val = 40;
@@ -946,7 +1161,7 @@
             const grade = getGrade(total);
             const badge = document.getElementById(`grade-${id}`);
             badge.innerText = grade;
-            badge.className = `px-2 py-1 rounded text-xs font-bold ${getGradeColor(grade)}`;
+            badge.className = `px-3 py-1 rounded-full text-xs font-bold ${getGradeColor(grade)}`;
         };
 
         async function handleSaveMarks() {
@@ -958,25 +1173,22 @@
 
             showLoading(true);
             try {
-                // Batch updates using Promise.all
                 const updates = [];
                 const students = db.students.filter(s => s.class === cls);
                 
                 for(let s of students) {
                     if(window.tempMarks[s.id]) {
                         const newData = window.tempMarks[s.id];
-                        // Get current data for student
                         const currentData = db.marks[s.id] || {};
                         if(!currentData[term]) currentData[term] = {};
                         currentData[term][sub] = newData;
-
                         updates.push(setDoc(doc(dbFirestore, "marks", s.id), currentData, { merge: true }));
                     }
                 }
                 
                 await Promise.all(updates);
                 await syncData();
-                showModal('Success', 'Marks saved successfully.', 'success');
+                showModal('Success', 'Scores saved successfully.', 'success');
             } catch(e) {
                 showModal('Error', e.message, 'error');
             }
@@ -990,22 +1202,30 @@
             const container = document.getElementById('report-student-list');
             
             if(!cls) {
-                container.innerHTML = '<div class="md:col-span-4 text-center text-gray-500">Select Class to view students.</div>';
+                container.innerHTML = '<div class="md:col-span-4 text-center text-gray-500 py-8">Select a Class and Term to generate reports.</div>';
                 return;
             }
 
             const students = db.students.filter(s => s.class === cls);
             container.innerHTML = '';
             
+            if(students.length === 0) {
+                 container.innerHTML = '<div class="md:col-span-4 text-center text-gray-500 py-8">No students found in this class.</div>';
+                 return;
+            }
+
             students.forEach(s => {
                 const div = document.createElement('div');
-                div.className = 'bg-white p-4 rounded-xl shadow-sm border hover:shadow-md transition cursor-pointer flex justify-between items-center';
+                div.className = 'bg-white p-4 rounded-xl shadow-sm border hover:shadow-md transition cursor-pointer flex justify-between items-center group';
                 div.innerHTML = `
-                    <div>
-                        <p class="font-bold text-sm">${s.name}</p>
-                        <p class="text-xs text-gray-500">ID: ${s.id.substr(-4)}</p>
+                    <div class="flex items-center gap-3">
+                         <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600 group-hover:bg-green-100 group-hover:text-green-700 transition">${s.name.charAt(0)}</div>
+                         <div>
+                            <p class="font-bold text-sm text-gray-800">${s.name}</p>
+                            <p class="text-xs text-gray-500">ID: ${s.id.substr(-4)}</p>
+                         </div>
                     </div>
-                    <button onclick="generateReportCard('${s.id}', '${term}')" class="text-blue-600 bg-blue-50 p-2 rounded-lg hover:bg-blue-100"><i class="fas fa-eye"></i></button>
+                    <button onclick="generateReportCard('${s.id}', '${term}')" class="text-blue-600 bg-blue-50 p-2 rounded-lg hover:bg-blue-600 hover:text-white transition"><i class="fas fa-eye"></i></button>
                 `;
                 container.appendChild(div);
             });
@@ -1057,79 +1277,107 @@
                 const grade = getGrade(total);
                 rowsHtml += `
                     <tr>
-                        <td class="p-1">${sub}</td>
-                        <td class="center p-1">${score.ca||'-'}</td>
-                        <td class="center p-1">${score.exam||'-'}</td>
-                        <td class="center font-bold p-1">${total}</td>
-                        <td class="center font-bold p-1 ${grade === 'F' ? 'text-red-600' : 'text-green-800'}">${grade}</td>
-                        <td class="center text-xs p-1">${getRemark(grade)}</td>
+                        <td class="font-medium">${sub}</td>
+                        <td class="center text-gray-600">${score.ca||'-'}</td>
+                        <td class="center text-gray-600">${score.exam||'-'}</td>
+                        <td class="center bold text-gray-800">${total}</td>
+                        <td class="center bold ${grade === 'F' ? 'text-red-600' : 'text-green-700'}">${grade}</td>
+                        <td class="center text-xs text-gray-500 uppercase">${getRemark(grade)}</td>
                     </tr>
                 `;
             });
 
-            const avg = subjectCount > 0 ? (grandTotal / subjectCount).toFixed(1) : 0;
+            const avg = subjectCount > 0 ? (grandTotal / subjectCount).toFixed(2) : "0.00";
             const ordinal = getOrdinal(position);
 
             const html = `
                 <div class="a4-paper">
-                    <div class="report-header text-center">
-                         <div class="flex justify-between items-center px-4 mb-2">
-                            <div class="w-16">
-                                <i class="fas fa-book-open text-3xl text-green-700"></i>
+                    <div class="report-border">
+                        <div class="report-header">
+                             <div class="report-logo">
+                                <i class="fas fa-graduation-cap"></i>
+                             </div>
+                             <div class="report-title text-center">
+                                <h1 class="font-serif">NURUL BAYAN SCIENCE ACADEMY</h1>
+                                <p class="arabic text-2xl mt-1">أكاديمية نور البيان للعلوم</p>
+                                <p class="text-xs text-gray-500 mt-2 uppercase tracking-widest">Motto: Knowledge, Faith & Character</p>
+                                <p class="text-sm font-bold text-gray-800 mt-2">STUDENT TERMINAL REPORT</p>
+                             </div>
+                             ${s.photo ? `<img src="${s.photo}" class="student-profile-img">` : `<div class="student-profile-img bg-gray-100 flex items-center justify-center text-gray-400 text-xs text-center p-2">No Photo</div>`}
+                        </div>
+                        
+                        <div class="info-grid">
+                            <div class="info-item"><span>Student Name:</span> <span>${s.name}</span></div>
+                            <div class="info-item"><span>Class:</span> <span>${s.class}</span></div>
+                            <div class="info-item"><span>Admission No:</span> <span>${s.id.substr(-6).toUpperCase()}</span></div>
+                            <div class="info-item"><span>Academic Term:</span> <span>${term}</span></div>
+                            <div class="info-item"><span>Session:</span> <span>2024/2025</span></div>
+                            <div class="info-item"><span>Date Issued:</span> <span>${new Date().toLocaleDateString()}</span></div>
+                        </div>
+
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th class="w-16 center">C.A (40)</th>
+                                    <th class="w-16 center">Exam (60)</th>
+                                    <th class="w-16 center">Total</th>
+                                    <th class="w-16 center">Grade</th>
+                                    <th class="w-24 center">Remark</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHtml}</tbody>
+                        </table>
+
+                         <div class="summary-grid">
+                            <div class="summary-box">
+                                <div class="summary-label">Total Score</div>
+                                <div class="summary-value">${grandTotal}</div>
                             </div>
-                            <div class="flex-1">
-                                <h1 class="text-2xl font-bold text-green-800">NURUL BAYAN SCIENCE ACADEMY</h1>
-                                <p class="arabic text-lg text-green-600">أكاديمية نور البيان للعلوم</p>
-                                <p class="text-[10px] text-gray-500 mt-1">Motto: Knowledge & Character</p>
+                            <div class="summary-box">
+                                <div class="summary-label">Average</div>
+                                <div class="summary-value">${avg}%</div>
                             </div>
-                            <div class="w-16"></div>
+                            <div class="summary-box">
+                                <div class="summary-label">Subjects</div>
+                                <div class="summary-value">${subjectCount}</div>
+                            </div>
+                             <div class="summary-box" style="border-color: #fcd34d; background: #fffbeb;">
+                                <div class="summary-label text-yellow-700">Class Position</div>
+                                <div class="summary-value text-yellow-700">${position}<sup>${ordinal}</sup></div>
+                            </div>
                         </div>
-                        <div class="bg-green-700 text-white py-1 font-bold uppercase text-xs rounded-sm">Student Terminal Report Sheet</div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-2 text-sm mb-4 border p-2 bg-gray-50 rounded">
-                        <div>Name: <b>${s.name}</b></div>
-                        <div>Class: <b>${s.class}</b></div>
-                        <div>Term: <b>${term}</b></div>
-                        <div>Gender: <b>${s.gender}</b></div>
-                    </div>
+                        
+                        <div class="grade-scale">
+                             Grade Scale: A (70-100) | B (60-69) | C (50-59) | D (45-49) | E (40-44) | F (0-39)
+                        </div>
 
-                    <table class="report-table">
-                        <thead>
-                            <tr>
-                                <th class="text-left p-1">Subject</th>
-                                <th class="w-12 p-1">CA</th>
-                                <th class="w-12 p-1">Exam</th>
-                                <th class="w-12 p-1">Tot</th>
-                                <th class="w-12 p-1">Grd</th>
-                                <th class="w-20 p-1">Rem</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rowsHtml}</tbody>
-                    </table>
+                        <div class="footer-section">
+                            <div class="signature-box">
+                                <div class="signature-line"></div>
+                                <p class="text-xs font-bold uppercase">Class Teacher</p>
+                            </div>
+                            
+                            <!-- STAMP -->
+                            <div class="stamp-container">
+                                <div class="stamp">
+                                    <div class="stamp-inner">
+                                        <div class="stamp-text-curve">NURUL BAYAN ACADEMY</div>
+                                        <div class="stamp-approved">APPROVED</div>
+                                        <div class="stamp-text-curve">OFFICIAL RESULT</div>
+                                        <div class="stamp-text-curve" style="font-size: 8px; margin-top: 2px;">${new Date().toLocaleDateString()}</div>
+                                    </div>
+                                </div>
+                            </div>
 
-                     <div class="grid grid-cols-4 gap-2 mb-6 text-sm border-t pt-2">
-                        <div class="bg-gray-100 p-2 text-center rounded">
-                            <p class="text-[10px] text-gray-500">Total</p>
-                            <p class="font-bold">${grandTotal}</p>
+                            <div class="signature-box">
+                                <div class="signature-line" style="font-family: 'Great Vibes', cursive; font-size: 24px;">Principal</div>
+                                <p class="text-xs font-bold uppercase">Principal's Signature</p>
+                            </div>
                         </div>
-                        <div class="bg-gray-100 p-2 text-center rounded">
-                            <p class="text-[10px] text-gray-500">Avg</p>
-                            <p class="font-bold">${avg}%</p>
+                        <div class="text-center mt-6 text-[10px] text-gray-400">
+                             Valid Report Sheet Generated via Nurul Bayan Portal
                         </div>
-                        <div class="bg-gray-100 p-2 text-center rounded">
-                            <p class="text-[10px] text-gray-500">Count</p>
-                            <p class="font-bold">${subjectCount}</p>
-                        </div>
-                         <div class="bg-yellow-100 p-2 text-center rounded border border-yellow-300">
-                            <p class="text-[10px] text-gray-600">Position</p>
-                            <p class="font-bold text-lg text-yellow-700">${position}<sup>${ordinal}</sup></p>
-                        </div>
-                    </div>
-
-                    <div class="mt-8 grid grid-cols-2 gap-8 text-center">
-                        <div><div class="border-b border-black mb-1 w-3/4 mx-auto"></div><p class="text-[10px] font-bold">Teacher's Sig</p></div>
-                        <div><div class="border-b border-black mb-1 w-3/4 mx-auto"></div><p class="text-[10px] font-bold">Principal's Sig</p></div>
                     </div>
                 </div>
             `;
@@ -1139,7 +1387,7 @@
                 area.insertAdjacentHTML('beforeend', html);
             } else {
                 area.innerHTML = html;
-                window.print();
+                setTimeout(() => window.print(), 500);
             }
         }
 
@@ -1147,25 +1395,33 @@
             const cls = document.getElementById('report-class').value;
             const term = document.getElementById('report-term').value;
             
-            if(!cls) return;
+            if(!cls) {
+                 showModal('Selection Required', 'Please select a class to print.', 'error');
+                 return;
+            }
             
             const area = document.getElementById('printable-area');
-            area.innerHTML = ''; // Clear previous
+            area.innerHTML = ''; 
 
             const students = db.students.filter(s => s.class === cls);
             
-            // Calculate positions first
+            if(students.length === 0) {
+                 showModal('No Data', 'No students found in this class.', 'error');
+                 return;
+            }
+
             const positions = calculatePosition(cls, term);
-
-            // Loop and append
-            students.forEach(s => {
+            
+            showLoading(true);
+            // Process sequentially to ensure DOM is ready
+            for (const s of students) {
                 renderReportCardHTML(s.id, term, true);
-            });
+            }
+            showLoading(false);
 
-            // Wait a moment for DOM update then print
             setTimeout(() => {
                 window.print();
-            }, 500);
+            }, 1000);
         }
 
         // --- UTILS ---
@@ -1178,19 +1434,19 @@
             return 'F';
         }
         function getGradeColor(grade) {
-            if (grade === 'A') return 'bg-green-100 text-green-700';
-            if (grade === 'B') return 'bg-blue-100 text-blue-700';
-            if (grade === 'C') return 'bg-yellow-100 text-yellow-700';
-            if (grade === 'F') return 'bg-red-100 text-red-700';
-            return 'bg-gray-100 text-gray-700';
+            if (grade === 'A') return 'bg-green-100 text-green-700 border-green-200 border';
+            if (grade === 'B') return 'bg-blue-100 text-blue-700 border-blue-200 border';
+            if (grade === 'C') return 'bg-yellow-100 text-yellow-700 border-yellow-200 border';
+            if (grade === 'F') return 'bg-red-100 text-red-700 border-red-200 border';
+            return 'bg-gray-100 text-gray-700 border-gray-200 border';
         }
         function getRemark(grade) {
-            if (grade === 'A') return 'Ex';
-            if (grade === 'B') return 'VG';
-            if (grade === 'C') return 'Gd';
-            if (grade === 'D') return 'Ps';
-            if (grade === 'E') return 'Fr';
-            return 'Fl';
+            if (grade === 'A') return 'Excellent';
+            if (grade === 'B') return 'Very Good';
+            if (grade === 'C') return 'Good';
+            if (grade === 'D') return 'Fair';
+            if (grade === 'E') return 'Pass';
+            return 'Fail';
         }
         function getOrdinal(n) {
             const s = ["th", "st", "nd", "rd"];
@@ -1200,49 +1456,63 @@
 
         // --- FINANCE ---
         async function handleGenerateReceipt() {
-             const stdId = document.getElementById('receipt-student').value;
+            const stdId = document.getElementById('receipt-student').value;
             const amount = document.getElementById('fee-amount').value;
             const purpose = document.getElementById('fee-purpose').value;
 
-            if(!stdId || !amount || !purpose) return;
+            if(!stdId || !amount || !purpose) {
+                 showModal('Missing Info', 'Please fill all receipt fields.', 'error');
+                 return;
+            }
 
             const s = db.students.find(x => x.id === stdId);
-            const date = new Date().toLocaleString();
+            const date = new Date().toLocaleDateString();
             const receiptId = 'RCP' + Date.now().toString().substr(-6);
 
             const html = `
                 <div class="receipt-paper">
-                    <div class="text-center border-b border-dashed pb-2 mb-2">
-                        <h2 class="font-bold text-lg">NURUL BAYAN</h2>
-                        <p class="text-xs">Receipt</p>
+                    <div class="receipt-header">
+                        <div class="receipt-logo"><i class="fas fa-university"></i></div>
+                        <h2 style="font-weight: bold; font-size: 16px;">NURUL BAYAN ACADEMY</h2>
+                        <p style="font-size: 10px;">Official Payment Receipt</p>
                     </div>
-                    <div class="text-xs space-y-2 mb-4">
-                        <div class="flex justify-between"><span>Date:</span> <span>${date.split(',')[0]}</span></div>
-                        <div class="flex justify-between"><span>RCP #:</span> <span>${receiptId}</span></div>
-                        <div class="flex justify-between"><span>Student:</span> <span>${s.name}</span></div>
+                    
+                    <div style="margin: 15px 0;">
+                        <div class="receipt-row"><span>Date:</span> <strong>${date}</strong></div>
+                        <div class="receipt-row"><span>Receipt #:</span> <strong>${receiptId}</strong></div>
+                        <div class="receipt-row"><span>Student:</span> <strong>${s.name}</strong></div>
+                        <div class="receipt-row"><span>Class:</span> <strong>${s.class}</strong></div>
                     </div>
-                    <div class="border-t border-b border-dashed py-2 my-2">
-                        <p class="text-[10px] text-gray-500">Payment For:</p>
-                        <p class="text-sm font-bold">${purpose}</p>
+
+                    <div style="border-top: 1px dashed #000; padding-top: 5px; margin-top: 5px;">
+                        <p style="font-size: 10px; color: #666;">Payment Description:</p>
+                        <p style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">${purpose}</p>
                     </div>
-                    <div class="flex justify-between font-bold text-lg mt-2">
-                        <span>Paid:</span>
+
+                    <div class="receipt-total">
+                        <span>TOTAL PAID:</span>
                         <span>₦${parseInt(amount).toLocaleString()}</span>
                     </div>
-                     <div class="text-center mt-6">
-                        <p class="text-[10px]">Manager Sign: ________________</p>
+
+                     <!-- MINI STAMP -->
+                    <div style="position: absolute; bottom: 40px; right: 10px; transform: rotate(-10deg); border: 2px solid #b91c1c; color: #b91c1c; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; opacity: 0.7;">
+                        PAID
+                    </div>
+
+                    <div class="receipt-footer">
+                        <p>Received By: _________________</p>
+                        <p style="margin-top: 5px;">Thank you for your payment.</p>
                     </div>
                 </div>
             `;
             
             document.getElementById('receipt-preview-area').innerHTML = html;
-            window.print();
+            setTimeout(() => window.print(), 500);
 
-            // Save to DB
             showLoading(true);
             try {
                 await addDoc(collection(dbFirestore, "fees"), {
-                    receiptId, studentId: stdId, amount, purpose, date
+                    receiptId, studentId: stdId, amount, purpose, date: new Date().toISOString()
                 });
                 document.getElementById('fee-amount').value = '';
                 document.getElementById('fee-purpose').value = '';
@@ -1250,7 +1520,6 @@
             showLoading(false);
         }
 
-        // Init App
         initApp();
     </script>
 </body>

@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TASI’U ADAM COMMUNITY COLLEGE - School Management</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom Font Setup */
+        body { font-family: 'Noto Sans', sans-serif; }
+        .arabic-text { font-family: 'Amiri', serif; }
+        
+        /* Watermark */
+        .watermark-bg {
+            position: relative;
+            z-index: 1;
+        }
+        .watermark-bg::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23166534" opacity="0.05"><path d="M12 3L1 9l11 6 9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            z-index: -1;
+        }
+
+        /* Stamp Design */
+        .stamp {
+            border: 3px solid #166534;
+            color: #166534;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transform: rotate(-15deg);
+            opacity: 0.9;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            position: absolute;
+            bottom: 60px;
+            right: 60px;
+            mask-image: radial-gradient(circle, rgba(0,0,0,1) 40%, rgba(0,0,0,0.8) 100%);
+            z-index: 10;
+        }
+        .stamp-inner {
+            border: 1px dashed #166534;
+            border-radius: 50%;
+            width: 90%;
+            height: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        /* Print Specific Styles */
+        @media print {
+            @page { margin: 0; size: auto; }
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                min-height: 100%;
+                background: white;
+                z-index: 9999;
+            }
+            .no-print { display: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .page-break { page-break-after: always; min-height: 100vh; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #166534; border-radius: 3px; }
+
+        /* Report Card Frame */
+        .report-frame {
+            border: 4px double #15803d;
+            padding: 20px;
+            position: relative;
+            background: white;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .receipt-card {
+            background: #fff;
+            border-top: 5px solid #166534;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 h-screen overflow-hidden flex flex-col">
+
+    <!-- LOGIN SECTION -->
+    <div id="login-section" class="fixed inset-0 z-50 bg-green-900 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in-up">
+            <div class="bg-green-800 p-6 text-center text-white relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                <h1 class="text-2xl font-bold arabic-text mb-2 relative z-10">تاسع ءادم المجتمع للعلوم والقران الكر يم</h1>
+                <h2 class="text-lg font-semibold relative z-10">TASI’U ADAM COMMUNITY COLLEGE</h2>
+                <p class="text-xs opacity-80 mt-1 relative z-10">School Management Portal</p>
+            </div>
+            <div class="p-8">
+                <form id="login-form" onsubmit="handleLogin(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fas fa-user"></i></span>
+                            <input type="text" id="username" class="w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter Username" required>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                         <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><i class="fas fa-lock"></i></span>
+                            <input type="password" id="password" class="w-full pl-10 px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Enter Password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-green-700 text-white font-bold py-3 rounded-lg hover:bg-green-800 transition duration-300 shadow-lg transform hover:-translate-y-0.5">
+                        Login Securely <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                    <p id="login-error" class="text-red-500 text-sm mt-3 text-center hidden"><i class="fas fa-exclamation-circle mr-1"></i> Invalid credentials</p>
+                    
+                </form>
+            </div>
+            <div class="bg-gray-100 p-4 text-center text-xs text-gray-500">
+                Powered by Abu-Abdurrahman CodeVerge Technology
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP LAYOUT (Hidden initially) -->
+    <div id="app-layout" class="flex-1 flex hidden h-screen">
+        
+        <!-- Sidebar (Desktop) -->
+        <aside class="hidden md:flex flex-col w-64 bg-green-900 text-white shadow-xl z-20">
+            <div class="p-4 border-b border-green-800 text-center bg-green-950">
+                <div class="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center mb-2 shadow-inner">
+                    <i class="fas fa-school text-3xl text-green-700"></i>
+                </div>
+                <h3 class="font-bold leading-tight">Tasi'u Adam College</h3>
+                <p class="text-xs text-green-400 mt-1 uppercase tracking-wider" id="user-role-display">Admin Panel</p>
+            </div>
+            <nav class="flex-1 overflow-y-auto py-4 space-y-1" id="desktop-nav">
+                <!-- Nav Items Injected by JS -->
+            </nav>
+            <div class="p-4 border-t border-green-800 bg-green-950">
+                <button onclick="logout()" class="w-full py-2 bg-red-600 hover:bg-red-700 rounded text-sm transition shadow">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden relative">
+            
+            <!-- Mobile Header -->
+            <header class="bg-green-900 text-white shadow-md z-10 p-4 flex justify-between items-center md:hidden">
+                <div class="flex items-center">
+                    <i class="fas fa-school text-yellow-400 text-xl mr-2"></i>
+                    <span class="font-bold truncate max-w-[200px]">Tasi'u Adam College</span>
+                </div>
+                <button onclick="toggleMobileMenu()" class="text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </header>
+
+            <!-- Mobile Menu Overlay -->
+            <div id="mobile-menu" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="toggleMobileMenu()">
+                <div class="absolute right-0 top-0 h-full w-64 bg-green-900 text-white shadow-xl transform transition-transform duration-300 translate-x-full" id="mobile-menu-panel" onclick="event.stopPropagation()">
+                    <div class="p-4 border-b border-green-800 flex justify-between items-center bg-green-950">
+                        <span class="font-bold">Menu</span>
+                        <button onclick="toggleMobileMenu()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <nav class="p-4 space-y-2" id="mobile-nav">
+                        <!-- Nav Items Injected by JS -->
+                    </nav>
+                    <div class="p-4 mt-auto">
+                        <button onclick="logout()" class="w-full py-2 bg-red-600 rounded shadow">Logout</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div id="main-content" class="flex-1 overflow-y-auto p-4 md:p-8 pb-20 bg-gray-50">
+                <!-- Dynamic Content Loads Here -->
+            </div>
+
+            <!-- Full Screen Preview Modal -->
+            <div id="preview-modal" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-95 hidden flex flex-col">
+                <div class="bg-white p-4 shadow-md flex justify-between items-center shrink-0">
+                    <h2 class="text-lg font-bold text-gray-800"><i class="fas fa-eye text-blue-600 mr-2"></i> Document Preview</h2>
+                    <div class="flex gap-2">
+                        <button onclick="closePreview()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Close</button>
+                        <button onclick="executePrint()" class="px-6 py-2 bg-green-600 text-white rounded shadow hover:bg-green-700 font-bold"><i class="fas fa-print mr-2"></i> Print Now</button>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-auto p-4 md:p-8 flex justify-center bg-gray-500">
+                    <div id="preview-content" class="bg-white shadow-2xl origin-top transform scale-75 md:scale-90 lg:scale-100 transition-transform">
+                        <!-- Content injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="bg-white border-t border-gray-200 p-3 text-center text-xs text-gray-500 absolute bottom-0 w-full z-0">
+                Developed Abu-Abdurrahman CodeVerge Technology | +2348107907647
+            </footer>
+        </main>
+    </div>
+
+    <!-- PRINT AREA (Hidden from UI) -->
+    <div id="print-area" class="hidden"></div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- CONFIGURATION & CONSTANTS ---
+        const CLASSES = ["Nursery 1", "Nursery 2", "Primary 1", "Primary 2", "Primary 3", "Primary 4", "Primary 5", "Primary 6", "Hafeez"];
+        const TERMS = ["First Term", "Second Term", "Third Term"];
+        const SCHOOL_INFO = {
+            name_ar: "تاسع ءادم المجتمع للعلوم والقران الكر يم",
+            name_en: "TASI’U ADAM COMMUNITY COLLEGE OF SCIENCE AND QUR’ANIC STUDIES GARO",
+            address: "No. 5 Gwarzo Road, Sabuwar Kasuwa Garo. Kabo LGA Kano State",
+            motto: "Knowledge and Practice",
+            contact: "+234-9063121276"
+        };
+
+        // --- STATE MANAGEMENT ---
+        let currentUser = null;
+        const db = {
+            get: (key) => JSON.parse(localStorage.getItem(key) || "[]"),
+            set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
+            init: () => {
+                if(!localStorage.getItem('students')) localStorage.setItem('students', '[]');
+                
+                // Pre-seed a Teacher if none exist
+                if(!localStorage.getItem('teachers') || localStorage.getItem('teachers') === '[]') {
+                    const demoTeacher = [{
+                        name: "Demo Teacher",
+                        assignedClass: "Primary 1",
+                        username: "teacher",
+                        password: "123"
+                    }];
+                    localStorage.setItem('teachers', JSON.stringify(demoTeacher));
+                }
+
+                if(!localStorage.getItem('marks')) localStorage.setItem('marks', '[]'); 
+                // Default Subjects
+                if(!localStorage.getItem('subjects') || localStorage.getItem('subjects') === '[]') {
+                    const defaultSubs = ["Mathematics", "English", "Hausa", "Social Studies", "Civic Education", "B. Science", "I.R.K", "Qur'an"];
+                    localStorage.setItem('subjects', JSON.stringify(defaultSubs));
+                }
+            }
+        };
+
+        db.init();
+
+        // --- AUTHENTICATION ---
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('username').value.trim(); 
+            const p = document.getElementById('password').value.trim();
+            const err = document.getElementById('login-error');
+
+            if(u === 'Edu' && p === 'Edu123') {
+                currentUser = { role: 'admin', name: 'Administrator' };
+                showApp();
+                return;
+            }
+
+            const teachers = db.get('teachers');
+            const teacher = teachers.find(t => t.username === u && t.password === p);
+            if(teacher) {
+                currentUser = { ...teacher, role: 'teacher' };
+                showApp();
+                return;
+            }
+
+            err.classList.remove('hidden');
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('app-layout').classList.add('hidden');
+            document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('login-form').reset();
+            document.getElementById('login-error').classList.add('hidden');
+        }
+
+        function showApp() {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('app-layout').classList.remove('hidden');
+            document.getElementById('user-role-display').textContent = currentUser.role === 'admin' ? 'Super Admin' : `Teacher - ${currentUser.assignedClass}`;
+            renderNav();
+            loadDashboard();
+        }
+
+        // --- NAVIGATION ---
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const panel = document.getElementById('mobile-menu-panel');
+            
+            if(menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                setTimeout(() => panel.classList.remove('translate-x-full'), 10);
+            } else {
+                panel.classList.add('translate-x-full');
+                setTimeout(() => menu.classList.add('hidden'), 300);
+            }
+        }
+
+        function renderNav() {
+            // Both roles can manage subjects now as requested
+            const commonItems = [
+                { icon: 'fa-tachometer-alt', text: 'Dashboard', onclick: 'loadDashboard()' },
+                { icon: 'fa-book', text: 'Manage Subjects', onclick: 'loadSubjects()' }, // Added for both
+            ];
+
+            const adminItems = [
+                { icon: 'fa-chalkboard-teacher', text: 'Manage Teachers', onclick: 'loadTeachers()' },
+                { icon: 'fa-user-graduate', text: 'Manage Students', onclick: 'loadStudents()' },
+                { icon: 'fa-edit', text: 'Enter Marks', onclick: 'loadMarksEntry()' },
+                { icon: 'fa-file-alt', text: 'Reports & Results', onclick: 'loadReports()' },
+                { icon: 'fa-money-bill-wave', text: 'Fees Receipt', onclick: 'loadReceipts()' }
+            ];
+
+            const teacherItems = [
+                { icon: 'fa-user-graduate', text: 'My Class Students', onclick: 'loadStudents()' },
+                { icon: 'fa-edit', text: 'Enter Marks', onclick: 'loadMarksEntry()' },
+                { icon: 'fa-file-alt', text: 'Generate Reports', onclick: 'loadReports()' },
+                { icon: 'fa-calendar-alt', text: 'Attendance', onclick: 'loadAttendance()' }
+            ];
+
+            const items = currentUser.role === 'admin' ? [...commonItems, ...adminItems] : [...commonItems, ...teacherItems];
+            // Dedup items just in case
+            const uniqueItems = items.filter((v,i,a)=>a.findIndex(t=>(t.text===v.text))===i);
+
+            const html = uniqueItems.map(item => `
+                <a href="#" onclick="${item.onclick}; toggleMobileMenu(); return false;" class="flex items-center px-4 py-3 hover:bg-green-800 transition text-gray-200 hover:text-white border-l-4 border-transparent hover:border-yellow-400">
+                    <i class="fas ${item.icon} w-6 text-center mr-2"></i>
+                    <span class="font-medium">${item.text}</span>
+                </a>
+            `).join('');
+
+            document.getElementById('desktop-nav').innerHTML = html;
+            document.getElementById('mobile-nav').innerHTML = html;
+        }
+
+        // --- DASHBOARD & MANAGERS ---
+        function loadDashboard() {
+            const students = db.get('students');
+            const teachers = db.get('teachers');
+            
+            let statsHTML = '';
+            
+            if(currentUser.role === 'admin') {
+                statsHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-lg shadow-md border-b-4 border-green-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-gray-500 text-sm font-semibold uppercase">Students</div>
+                                    <div class="text-3xl font-bold text-gray-800">${students.length}</div>
+                                </div>
+                                <i class="fas fa-user-graduate text-3xl text-green-200"></i>
+                            </div>
+                        </div>
+                         <div class="bg-white p-4 rounded-lg shadow-md border-b-4 border-blue-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-gray-500 text-sm font-semibold uppercase">Teachers</div>
+                                    <div class="text-3xl font-bold text-gray-800">${teachers.length}</div>
+                                </div>
+                                <i class="fas fa-chalkboard-teacher text-3xl text-blue-200"></i>
+                            </div>
+                        </div>
+                        <!-- More stats... -->
+                    </div>
+                `;
+            } else {
+                 const myStudents = students.filter(s => s.class === currentUser.assignedClass);
+                statsHTML = `
+                    <div class="bg-green-100 p-6 rounded-lg shadow mb-6 border-l-4 border-green-600">
+                        <h2 class="text-2xl font-bold text-green-800">Welcome, ${currentUser.name}</h2>
+                        <p class="text-green-700 mt-1">Class Teacher: <strong>${currentUser.assignedClass}</strong></p>
+                    </div>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded-lg shadow-md border-b-4 border-green-600">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-gray-500 text-sm font-semibold uppercase">My Students</div>
+                                    <div class="text-3xl font-bold text-gray-800">${myStudents.length}</div>
+                                </div>
+                                <i class="fas fa-user-graduate text-3xl text-green-200"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('main-content').innerHTML = `
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Dashboard</h2>
+                ${statsHTML}
+            `;
+        }
+
+        // --- SUBJECTS (Shared Permission) ---
+        function loadSubjects() {
+            // Permission check: Both Admin and Teacher can access
+            const subjects = db.get('subjects');
+            
+            let html = `
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Manage Subjects</h2>
+                    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                        <div class="flex flex-col md:flex-row gap-2">
+                            <input type="text" id="new-subject" placeholder="Enter Subject Name (e.g., Mathematics)" class="flex-1 border p-3 rounded focus:ring-2 focus:ring-green-500 focus:outline-none">
+                            <button onclick="addSubject()" class="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 font-semibold shadow">
+                                <i class="fas fa-plus mr-1"></i> Add Subject
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                        <ul class="divide-y divide-gray-100">
+                            ${subjects.map((sub, idx) => `
+                                <li class="p-4 flex justify-between items-center hover:bg-gray-50">
+                                    <span class="font-semibold text-gray-700">${sub}</span>
+                                    <button onclick="removeSubject(${idx})" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded transition">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </li>
+                            `).join('')}
+                            ${subjects.length === 0 ? '<li class="p-8 text-center text-gray-500">No subjects added yet.</li>' : ''}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            document.getElementById('main-content').innerHTML = html;
+        }
+
+        function addSubject() {
+            const input = document.getElementById('new-subject');
+            const val = input.value.trim();
+            if(val) {
+                const subjects = db.get('subjects');
+                if(!subjects.includes(val)) {
+                    subjects.push(val);
+                    db.set('subjects', subjects);
+                    loadSubjects();
+                } else {
+                    alert('Subject already exists');
+                }
+            }
+        }
+
+        function removeSubject(idx) {
+            if(confirm('Remove this subject? Note: Marks entered for this subject will remain but the subject will not appear on new forms.')) {
+                const subjects = db.get('subjects');
+                subjects.splice(idx, 1);
+                db.set('subjects', subjects);
+                loadSubjects();
+            }
+        }
+
+        // --- OTHER MANAGERS (Simplified for brevity, logic same as before) ---
+        function loadTeachers() {
+            if(currentUser.role !== 'admin') return;
+            const teachers = db.get('teachers');
+            let html = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Manage Teachers</h2>
+                    <button onclick="showAddTeacherModal()" class="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700">Add Teacher</button>
+                </div>
+                <div class="bg-white shadow rounded-lg overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead class="bg-green-50 text-green-800">
+                            <tr><th class="p-4">Name</th><th class="p-4">Class</th><th class="p-4">Username</th><th class="p-4">Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            ${teachers.map((t, i) => `
+                                <tr class="border-t hover:bg-gray-50">
+                                    <td class="p-4">${t.name}</td><td class="p-4">${t.assignedClass}</td><td class="p-4">${t.username}</td>
+                                    <td class="p-4"><button onclick="deleteTeacher(${i})" class="text-red-600"><i class="fas fa-trash"></i></button></td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+            document.getElementById('main-content').innerHTML = html;
+        }
+        function showAddTeacherModal() {
+             const modalHtml = `
+                <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+                        <h3 class="text-xl font-bold mb-4">Add New Teacher</h3>
+                        <form onsubmit="saveTeacher(event)">
+                            <input type="text" name="name" placeholder="Full Name" required class="w-full border p-2 mb-3 rounded">
+                            <select name="assignedClass" required class="w-full border p-2 mb-3 rounded">
+                                <option value="">Select Class</option>
+                                ${CLASSES.map(c => `<option value="${c}">${c}</option>`).join('')}
+                            </select>
+                            <input type="text" name="username" placeholder="Username" required class="w-full border p-2 mb-3 rounded">
+                            <input type="text" name="password" placeholder="Password" required class="w-full border p-2 mb-3 rounded">
+                            <div class="flex justify-end gap-2">
+                                <button type="button" onclick="loadTeachers()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancel</button>
+                                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.getElementById('main-content').insertAdjacentHTML('beforeend', modalHtml);
+        }
+        function saveTeacher(e){ e.preventDefault(); const t = Object.fromEntries(new FormData(e.target)); const ts = db.get('teachers'); ts.push(t); db.set('teachers', ts); loadTeachers(); }
+        function deleteTeacher(i){ if(confirm('Delete?')) { const ts = db.get('teachers'); ts.splice(i,1); db.set('teachers', ts); loadTeachers(); } }
+
+        function loadStudents() {
+            const students = db.get('students');
+            const isTeacher = currentUser.role === 'teacher';
+            const displayStudents = isTeacher ? students.filter(s => s.class === currentUser.assignedClass) : students;
+             let html = `
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800">Manage Students</h2>
+                    ${!isTeacher ? `<button onclick="showAddStudentModal()" class="bg-green-600 text-white px-4 py-2 rounded shadow">Add Student</button>` : ''}
+                </div>
+                <div class="bg-white shadow rounded-lg overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead class="bg-green-50 text-green-800"><tr><th class="p-4">Photo</th><th class="p-4">Name</th><th class="p-4">Class</th>${!isTeacher ? '<th class="p-4">Action</th>':''}</tr></thead>
+                        <tbody>
+                            ${displayStudents.map(s => `
+                                <tr class="border-t hover:bg-gray-50"><td class="p-4"><div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">${s.photo ? `<img src="${s.photo}" class="w-full h-full object-cover">` : '<i class="fas fa-user p-2"></i>'}</div></td>
+                                <td class="p-4 font-bold">${s.name}</td><td class="p-4">${s.class}</td>
+                                ${!isTeacher ? `<td class="p-4"><button onclick="deleteStudent('${s.id}')" class="text-red-500"><i class="fas fa-trash"></i></button></td>` : ''}</tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>`;
+            document.getElementById('main-content').innerHTML = html;
+        }
+        function showAddStudentModal() {
+            const modalHtml = `
+                <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+                        <h3 class="text-xl font-bold mb-4">Add Student</h3>
+                        <form onsubmit="saveStudent(event)">
+                             <div class="mb-3 text-center">
+                                <label class="cursor-pointer inline-block">
+                                    <div class="w-24 h-24 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden" id="photo-preview"><i class="fas fa-camera text-gray-400"></i></div>
+                                    <input type="file" accept="image/*" class="hidden" onchange="previewPhoto(this)">
+                                </label>
+                            </div>
+                            <input type="text" name="name" placeholder="Name" required class="w-full border p-2 mb-3 rounded">
+                            <select name="gender" required class="w-full border p-2 mb-3 rounded"><option value="Male">Male</option><option value="Female">Female</option></select>
+                            <select name="class" required class="w-full border p-2 mb-3 rounded"><option value="">Class</option>${CLASSES.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
+                            <button type="submit" class="w-full bg-green-600 text-white py-2 rounded">Save</button>
+                        </form>
+                    </div>
+                </div>`;
+            document.getElementById('main-content').insertAdjacentHTML('beforeend', modalHtml);
+        }
+        let tempPhotoData = "";
+        function previewPhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { tempPhotoData = e.target.result; document.getElementById('photo-preview').innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`; }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        function saveStudent(e) { e.preventDefault(); const s = Object.fromEntries(new FormData(e.target)); s.id=Date.now().toString(); s.photo=tempPhotoData; const ss=db.get('students'); ss.push(s); db.set('students',ss); tempPhotoData=""; loadStudents(); }
+        function deleteStudent(id) { if(confirm('Delete student and marks?')) { let ss=db.get('students').filter(s=>s.id!==id); db.set('students',ss); let mm=db.get('marks').filter(m=>m.studentId!==id); db.set('marks',mm); loadStudents(); } }
+
+        function loadMarksEntry() {
+            const classesToView = currentUser.role === 'admin' ? CLASSES : [currentUser.assignedClass];
+            const subjects = db.get('subjects');
+            document.getElementById('main-content').innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow mb-6">
+                    <h2 class="text-2xl font-bold mb-4">Enter Marks</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <select id="mark-class" class="border p-2 rounded" onchange="renderMarkSheet()">${classesToView.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
+                        <select id="mark-term" class="border p-2 rounded" onchange="renderMarkSheet()">${TERMS.map(t => `<option value="${t}">${t}</option>`).join('')}</select>
+                        <select id="mark-subject" class="border p-2 rounded" onchange="renderMarkSheet()"><option value="">Select Subject</option>${subjects.map(s => `<option value="${s}">${s}</option>`).join('')}</select>
+                    </div>
+                </div>
+                <div id="mark-sheet-area"></div>
+            `;
+        }
+        function renderMarkSheet() {
+            const cls = document.getElementById('mark-class').value; const term = document.getElementById('mark-term').value; const sub = document.getElementById('mark-subject').value;
+            if(!sub) return;
+            const students = db.get('students').filter(s => s.class === cls);
+            const allMarks = db.get('marks');
+            let html = `<div class="bg-white rounded-lg shadow overflow-x-auto"><table class="w-full text-left min-w-[600px]"><thead class="bg-gray-100"><tr><th class="p-3">Name</th><th class="p-3 w-24">C.A(40)</th><th class="p-3 w-24">Exam(60)</th><th class="p-3">Total</th><th class="p-3">Action</th></tr></thead><tbody>`;
+            students.forEach(s => {
+                const m = allMarks.find(x => x.studentId === s.id && x.term === term && x.subject === sub && x.class === cls);
+                const ca = m ? m.ca : ''; const ex = m ? m.exam : ''; const tot = (parseFloat(ca||0)+parseFloat(ex||0));
+                html += `<tr class="border-b"><td class="p-3 font-medium">${s.name}</td>
+                    <td class="p-3"><input id="ca-${s.id}" value="${ca}" type="number" class="w-full border p-1 rounded text-center"></td>
+                    <td class="p-3"><input id="ex-${s.id}" value="${ex}" type="number" class="w-full border p-1 rounded text-center"></td>
+                    <td class="p-3 font-bold" id="tot-${s.id}">${tot||'-'}</td>
+                    <td class="p-3"><button onclick="saveMark('${s.id}','${cls}','${term}','${sub}')" class="bg-blue-600 text-white px-3 py-1 rounded">Save</button></td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+            document.getElementById('mark-sheet-area').innerHTML = html;
+        }
+        function saveMark(sid, cls, term, sub) {
+            const ca = document.getElementById(`ca-${sid}`).value; const ex = document.getElementById(`ex-${sid}`).value;
+            if(ca>40 || ex>60) return alert('Invalid Marks');
+            let marks = db.get('marks').filter(m => !(m.studentId === sid && m.class === cls && m.term === term && m.subject === sub));
+            marks.push({studentId: sid, class: cls, term, subject: sub, ca, exam: ex});
+            db.set('marks', marks);
+            document.getElementById(`tot-${sid}`).innerText = (parseFloat(ca||0)+parseFloat(ex||0));
+        }
+
+        // --- NEW REPORT CARD LOGIC ---
+        function loadReports() {
+            const classesToView = currentUser.role === 'admin' ? CLASSES : [currentUser.assignedClass];
+            document.getElementById('main-content').innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow mb-6">
+                    <h2 class="text-2xl font-bold mb-4">Reports</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <select id="report-class" class="border p-3 rounded">${classesToView.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
+                        <select id="report-term" class="border p-3 rounded">${TERMS.map(t => `<option value="${t}">${t}</option>`).join('')}</select>
+                        <button onclick="previewReportCards()" class="bg-green-600 text-white p-3 rounded font-bold shadow hover:bg-green-700">
+                            <i class="fas fa-eye mr-2"></i> Preview & Print Reports
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- PREVIEW & PRINT SYSTEM ---
+        function previewReportCards() {
+            const cls = document.getElementById('report-class').value;
+            const term = document.getElementById('report-term').value;
+            const subjects = db.get('subjects');
+            const students = db.get('students').filter(s => s.class === cls);
+            const allMarks = db.get('marks');
+
+            if(students.length === 0) {
+                alert("No students found in this class.");
+                return;
+            }
+
+            // Rank Students
+            const rankedStudents = students.map(s => {
+                let total = 0, count = 0;
+                subjects.forEach(sub => {
+                    const m = allMarks.find(x => x.studentId === s.id && x.class === cls && x.term === term && x.subject === sub);
+                    if(m) { total += (parseFloat(m.ca||0) + parseFloat(m.exam||0)); count++; }
+                });
+                return { ...s, total, avg: count ? (total/count).toFixed(1) : 0 };
+            }).sort((a,b) => b.total - a.total);
+
+            // Generate HTML
+            let content = '';
+            rankedStudents.forEach((student, index) => {
+                const position = index + 1;
+                const suffix = ["st","nd","rd"][((position+90)%100-10)%10-1] || "th";
+                const positionStr = `${position}${suffix}`;
+                const qrId = `qr-${student.id}`;
+                
+                // Grades Logic
+                let grandTotal = 0, subCount = 0;
+                const rows = subjects.map(sub => {
+                    const m = allMarks.find(x => x.studentId === student.id && x.class === cls && x.term === term && x.subject === sub);
+                    if(!m) return null;
+                    const t = parseFloat(m.ca||0)+parseFloat(m.exam||0);
+                    grandTotal += t; subCount++;
+                    let g='F', r='Fail';
+                    if(t>=70){g='A';r='Excellent';} else if(t>=60){g='B';r='V. Good';} else if(t>=50){g='C';r='Good';} else if(t>=40){g='D';r='Pass';}
+                    return `<tr><td class="border px-2 py-1">${sub}</td><td class="border text-center">${m.ca}</td><td class="border text-center">${m.exam}</td><td class="border text-center font-bold">${t}</td><td class="border text-center">${g}</td><td class="border text-center italic text-xs">${r}</td></tr>`;
+                }).filter(r=>r).join('');
+
+                const avg = subCount ? (grandTotal/subCount).toFixed(2) : 0;
+                let htRemark = avg >= 50 ? "Promoted to next class." : "Advised to repeat.";
+                if(term !== "Third Term") htRemark = "Good result, keep it up.";
+
+                content += `
+                <div class="page-break w-[210mm] min-h-[297mm] bg-white mx-auto p-0 mb-8 shadow-lg relative print:shadow-none print:mb-0">
+                    <div class="report-frame watermark-bg h-full flex flex-col">
+                        <!-- Header -->
+                        <div class="flex items-center justify-between border-b-2 border-green-800 pb-2 mb-2">
+                             <div class="text-center w-24">
+                                <div class="w-20 h-20 bg-green-900 rounded-full flex items-center justify-center text-white text-3xl mx-auto"><i class="fas fa-book-open"></i></div>
+                            </div>
+                            <div class="text-center flex-1 px-4">
+                                <h1 class="text-3xl font-bold arabic-text text-green-900 leading-none mb-1">${SCHOOL_INFO.name_ar}</h1>
+                                <h2 class="text-lg font-bold uppercase text-green-800 leading-tight">${SCHOOL_INFO.name_en}</h2>
+                                <p class="text-xs font-bold mt-1 text-gray-600">${SCHOOL_INFO.address} | ${SCHOOL_INFO.contact}</p>
+                            </div>
+                            <div class="w-24 h-28 border-2 border-green-600 bg-gray-100 overflow-hidden">
+                                ${student.photo ? `<img src="${student.photo}" class="w-full h-full object-cover">` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Sub Header -->
+                        <div class="flex justify-between items-center bg-green-100 border border-green-500 px-4 py-1 mb-4">
+                            <span class="font-bold text-green-900 uppercase">Student Report Sheet</span>
+                            <span class="text-sm font-semibold">Session: 2024/2025</span>
+                        </div>
+
+                        <!-- Info Grid -->
+                        <div class="grid grid-cols-2 gap-x-8 gap-y-1 text-sm mb-4 px-2">
+                            <div class="flex border-b border-gray-300 pb-1"> <span class="w-24 font-bold text-green-800">Name:</span> <span class="uppercase font-semibold">${student.name}</span></div>
+                            <div class="flex border-b border-gray-300 pb-1"> <span class="w-24 font-bold text-green-800">Class:</span> <span>${student.class}</span></div>
+                            <div class="flex border-b border-gray-300 pb-1"> <span class="w-24 font-bold text-green-800">Gender:</span> <span>${student.gender}</span></div>
+                            <div class="flex border-b border-gray-300 pb-1"> <span class="w-24 font-bold text-green-800">Term:</span> <span>${term}</span></div>
+                            <div class="flex border-b border-gray-300 pb-1"> <span class="w-24 font-bold text-green-800">Position:</span> <span class="font-bold text-red-600">${positionStr}</span> / ${rankedStudents.length}</div>
+                            <div class="flex border-b border-gray-300 pb-1"> <span class="w-24 font-bold text-green-800">Date:</span> <span>${new Date().toLocaleDateString()}</span></div>
+                        </div>
+
+                        <!-- Marks Table -->
+                        <table class="w-full border-collapse border border-green-800 text-sm mb-4">
+                            <thead>
+                                <tr class="bg-green-700 text-white">
+                                    <th class="border border-green-600 px-2 py-1 text-left">Subject</th>
+                                    <th class="border border-green-600 px-1 w-12">CA</th>
+                                    <th class="border border-green-600 px-1 w-12">Exam</th>
+                                    <th class="border border-green-600 px-1 w-12">Total</th>
+                                    <th class="border border-green-600 px-1 w-10">Grd</th>
+                                    <th class="border border-green-600 px-1 w-20">Remark</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows || '<tr><td colspan="6" class="text-center py-4">No marks recorded.</td></tr>'}
+                            </tbody>
+                            <tfoot class="bg-gray-50 font-bold text-sm">
+                                <tr>
+                                    <td colspan="3" class="text-right px-2">Total Score:</td>
+                                    <td class="text-center px-1 border border-gray-300">${grandTotal}</td>
+                                    <td colspan="2"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-right px-2">Average:</td>
+                                    <td class="text-center px-1 border border-gray-300">${avg}</td>
+                                    <td colspan="2"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Footer Area -->
+                        <div class="mt-auto">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-2/3 pr-4">
+                                    <div class="mb-3">
+                                        <p class="text-xs font-bold text-green-800 underline">Class Teacher's Remark:</p>
+                                        <p class="text-sm italic border-b border-dotted border-gray-400 font-handwriting">${avg > 50 ? 'A focused student.' : 'Needs improvement.'}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p class="text-xs font-bold text-green-800 underline">Principal's Remark:</p>
+                                        <p class="text-sm italic border-b border-dotted border-gray-400 font-handwriting">${htRemark}</p>
+                                    </div>
+                                </div>
+                                <div class="w-1/3 flex flex-col items-center justify-center pt-2">
+                                     <div id="${qrId}"></div>
+                                     <span class="text-[9px] mt-1 text-gray-500 tracking-tighter">SCAN TO VERIFY</span>
+                                </div>
+                            </div>
+
+                             <!-- Stamp & Sign -->
+                            <div class="relative h-24 mt-2">
+                                <div class="absolute bottom-0 left-0 text-center w-32">
+                                    <div class="border-b border-black mb-1"></div>
+                                    <p class="text-[10px] font-bold">Principal's Signature</p>
+                                </div>
+                                
+                                <div class="stamp">
+                                    <div class="stamp-inner">
+                                        <span class="text-[9px]">Tasi'u Adam College</span>
+                                        <span class="text-[14px] text-red-600 font-bold">VERIFIED</span>
+                                        <span class="text-[8px]">${new Date().toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center text-[10px] text-gray-400 mt-2 pt-2 border-t">
+                                Generated by Abu-Abdurrahman CodeVerge Technology | +2348107907647
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+
+            // Show Preview Modal
+            const modal = document.getElementById('preview-modal');
+            const previewContent = document.getElementById('preview-content');
+            previewContent.innerHTML = content;
+            modal.classList.remove('hidden');
+
+            // Generate QR Codes after DOM update
+            rankedStudents.forEach(s => {
+                const el = document.getElementById(`qr-${s.id}`);
+                if(el) {
+                    el.innerHTML = "";
+                    new QRCode(el, {
+                        text: `${SCHOOL_INFO.name_en}\nStudent: ${s.name}\nClass: ${s.class}\nPos: ${s.avg}`,
+                        width: 60,
+                        height: 60,
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+                }
+            });
+        }
+
+        // --- RECEIPT LOGIC ---
+        function loadReceipts() {
+             const html = `
+                <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg mt-10">
+                    <div class="text-center mb-6">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-600 mb-2"><i class="fas fa-receipt text-xl"></i></div>
+                        <h2 class="text-2xl font-bold text-gray-800">Fee Payment</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <input type="text" id="rec-name" placeholder="Student Name" class="w-full border border-gray-300 p-3 rounded focus:outline-none focus:border-green-500 transition">
+                        <select id="rec-class" class="w-full border border-gray-300 p-3 rounded focus:outline-none focus:border-green-500 transition">
+                            <option value="">Select Class</option>
+                            ${CLASSES.map(c => `<option value="${c}">${c}</option>`).join('')}
+                        </select>
+                        <input type="number" id="rec-amount" placeholder="Amount Paid (₦)" class="w-full border border-gray-300 p-3 rounded focus:outline-none focus:border-green-500 transition">
+                        <input type="text" id="rec-purpose" placeholder="Payment For (e.g. 1st Term School Fees)" class="w-full border border-gray-300 p-3 rounded focus:outline-none focus:border-green-500 transition">
+                        <button onclick="previewReceipt()" class="w-full bg-green-800 text-white font-bold py-3 rounded hover:bg-green-900 transition shadow-lg mt-2">Generate Receipt</button>
+                    </div>
+                </div>
+             `;
+             document.getElementById('main-content').innerHTML = html;
+        }
+
+        function previewReceipt() {
+            const name = document.getElementById('rec-name').value;
+            const amount = document.getElementById('rec-amount').value;
+            const purpose = document.getElementById('rec-purpose').value;
+            const cls = document.getElementById('rec-class').value;
+            if(!name || !amount) return alert('Please fill details');
+
+            const id = "RCP" + Date.now().toString().slice(-6);
+            const date = new Date().toLocaleString();
+
+            const html = `
+                <div class="receipt-card w-[80mm] mx-auto p-4 text-sm font-mono bg-white relative">
+                    <div class="text-center mb-4">
+                        <h2 class="font-bold text-lg leading-tight text-green-900">TASI'U ADAM COLLEGE</h2>
+                        <p class="text-[10px] text-gray-600">Gwarzo Road, Garo, Kano State</p>
+                        <p class="text-[10px] text-gray-600">${SCHOOL_INFO.contact}</p>
+                    </div>
+                    
+                    <div class="border-b-2 border-dashed border-gray-300 my-2"></div>
+                    
+                    <div class="flex justify-between text-xs mb-1"><span>Receipt No:</span> <span class="font-bold">${id}</span></div>
+                    <div class="flex justify-between text-xs mb-1"><span>Date:</span> <span>${date}</span></div>
+                    
+                    <div class="border-b-2 border-dashed border-gray-300 my-2"></div>
+
+                    <div class="my-3 space-y-1">
+                        <div class="flex justify-between"> <span class="text-gray-500">Student:</span> <span class="font-bold uppercase text-right w-32 break-words">${name}</span></div>
+                        <div class="flex justify-between"> <span class="text-gray-500">Class:</span> <span class="font-bold">${cls}</span></div>
+                        <div class="flex justify-between"> <span class="text-gray-500">Paid For:</span> <span class="font-bold text-right w-32 break-words">${purpose}</span></div>
+                    </div>
+
+                    <div class="border-t-2 border-black my-2"></div>
+                    <div class="flex justify-between items-center text-lg font-bold">
+                        <span>TOTAL</span>
+                        <span>₦${parseInt(amount).toLocaleString()}</span>
+                    </div>
+                    <div class="border-b-2 border-black my-2"></div>
+
+                    <div class="text-center text-[10px] text-gray-500 mt-4 italic">
+                        "Knowledge and Practice"<br>Thank you for your payment.
+                    </div>
+                    
+                    <!-- Digital Stamp -->
+                    <div class="absolute bottom-12 right-2 opacity-80" style="transform: rotate(-20deg);">
+                         <div class="w-16 h-16 border-2 border-green-700 rounded-full flex items-center justify-center flex-col text-green-700">
+                             <span class="text-[8px] font-bold">PAID</span>
+                             <span class="text-[6px]">${new Date().toLocaleDateString()}</span>
+                         </div>
+                    </div>
+                </div>
+            `;
+
+            const modal = document.getElementById('preview-modal');
+            const previewContent = document.getElementById('preview-content');
+            previewContent.innerHTML = html;
+            modal.classList.remove('hidden');
+        }
+
+        // --- SHARED PREVIEW UTILS ---
+        function closePreview() {
+            document.getElementById('preview-modal').classList.add('hidden');
+        }
+
+        function executePrint() {
+            const content = document.getElementById('preview-content').innerHTML;
+            document.getElementById('print-area').innerHTML = content;
+            window.print();
+        }
+        
+        // --- ATTENDANCE ---
+        function loadAttendance() {
+            document.getElementById('main-content').innerHTML = `<div class="p-8 text-center text-gray-500"><i class="fas fa-tools text-4xl mb-2"></i><br>Attendance Module Coming Soon</div>`;
+        }
+
+    </script>
+</body>
+</html>

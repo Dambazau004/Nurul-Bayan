@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nurul Bayan Science Academy Management</title>
+    <title>Nurul Bayan Portal</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -136,7 +136,6 @@
             position: relative;
             color: #1f2937;
             box-sizing: border-box;
-            /* Watermark background */
             background-image: radial-gradient(#f3f4f6 1px, transparent 1px);
             background-size: 20px 20px;
         }
@@ -200,7 +199,7 @@
 
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr); /* Changed to 3 columns */
             gap: 12px;
             background-color: #f8fafc;
             padding: 15px;
@@ -280,6 +279,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
+            position: relative;
         }
         .signature-box {
             text-align: center;
@@ -289,6 +289,24 @@
             border-bottom: 2px solid #000;
             margin-bottom: 5px;
             height: 40px; /* Space for signature */
+        }
+        
+        .qr-section {
+            width: 150px;
+            height: 150px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: -15px;
+            text-align: center;
+            font-size: 8px;
+            color: #4b5563;
+        }
+        #qrcode-placeholder {
+            padding: 5px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         /* --- RECEIPT STYLES --- */
@@ -335,19 +353,30 @@
             margin-top: 20px;
         }
 
-        /* --- PRINTING FIXES --- */
+        /* --- PRINTING FIXES (CRITICAL) --- */
         @media print {
+            /* Fixes blank print and ensures background colors/images show */
+            * { 
+                -webkit-print-color-adjust: exact !important;   
+                print-color-adjust: exact !important; 
+                color: #000 !important; /* Force text to be visible */
+                box-shadow: none !important;
+                text-shadow: none !important;
+            }
+
             @page { margin: 0; size: auto; }
             body { 
                 background: white; 
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact;
+                margin: 0;
             }
             
-            #app-container, #login-overlay, #custom-modal, #loading-overlay {
+            /* Hide the entire application UI */
+            #app-container, #login-overlay, #custom-modal, #loading-overlay, footer, header {
                 display: none !important;
+                visibility: hidden !important;
             }
 
+            /* Only show the printable area */
             #printable-area, #receipt-preview-area {
                 display: block !important;
                 position: absolute;
@@ -357,27 +386,26 @@
                 margin: 0;
                 padding: 0;
                 visibility: visible !important;
+                z-index: 10000;
             }
             
             .a4-paper {
                 margin: 0 !important;
                 box-shadow: none !important;
                 width: 100% !important;
-                page-break-after: always;
                 min-height: 297mm;
-                /* Removes background pattern for print if causing ink waste, usually better to keep for aesthetics if desired */
+                page-break-before: auto;
+                page-break-after: always;
             }
 
             .receipt-paper {
-                width: 100% !important;
+                width: 80mm !important;
                 margin: 0 auto !important;
                 box-shadow: none !important;
                 border: none !important;
                 page-break-after: always;
+                page-break-before: auto;
             }
-            
-            /* Ensure colors print */
-            * { -webkit-print-color-adjust: exact !important;   print-color-adjust: exact !important; }
         }
 
         /* Mobile Fixes */
@@ -436,7 +464,7 @@
             <div class="p-6 text-center border-b border-green-700/50">
                 <div class="w-16 h-16 bg-white rounded-full mx-auto mb-3 flex items-center justify-center text-green-800 text-2xl font-bold shadow-lg">NB</div>
                 <h1 class="text-xl font-bold text-yellow-400">NURUL BAYAN</h1>
-                <p class="text-xs text-green-100 mt-1 arabic">أكاديمية نور البيان للعلوم</p>
+                <p class="text-xs text-green-100 mt-1 arabic">نور البيان الأكاديمية</p>
             </div>
             <nav class="flex-1 overflow-y-auto py-4 space-y-1">
                 <a id="nav-dashboard" class="nav-link cursor-pointer block py-3 px-6 border-l-4 border-transparent transition"><i class="fas fa-chart-line w-6"></i> Dashboard</a>
@@ -733,6 +761,18 @@
             messagingSenderId: "86444557578",
             appId: "1:86444557578:web:ec17056fa02214e4b126f3"
         };
+        
+        // --- SCHOOL CONSTANTS (NEW/UPDATED) ---
+        const SCHOOL_INFO = {
+            englishName: "NURUL BAYAN SCIENCE ACADEMY",
+            arabicName: "نور البيان الأكاديمية للعلوم",
+            motto: "Knowledge is the Root of Success",
+            address: "No. 2222 Janbulo Housing Estate, Opposite Afforestation, Dorayi Babba, Gwale LGA, Kano",
+            phone1: "+234-8119723517",
+            phone2: "+234-8189231849",
+            email: "nurulbayanscienceacademy18@gmail.com"
+        };
+
 
         const app = initializeApp(firebaseConfig);
         const dbFirestore = getFirestore(app);
@@ -1222,7 +1262,7 @@
                          <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-600 group-hover:bg-green-100 group-hover:text-green-700 transition">${s.name.charAt(0)}</div>
                          <div>
                             <p class="font-bold text-sm text-gray-800">${s.name}</p>
-                            <p class="text-xs text-gray-500">ID: ${s.id.substr(-4)}</p>
+                            <p class="text-xs text-gray-500">Class: ${s.class}</p>
                          </div>
                     </div>
                     <button onclick="generateReportCard('${s.id}', '${term}')" class="text-blue-600 bg-blue-50 p-2 rounded-lg hover:bg-blue-600 hover:text-white transition"><i class="fas fa-eye"></i></button>
@@ -1249,9 +1289,20 @@
             });
             averages.sort((a, b) => b.avg - a.avg);
             let positions = {};
+            let rank = 0;
+            let lastAvg = -1;
+            
+            // Assign ranks, handling ties
             averages.forEach((item, index) => {
-                positions[item.id] = index + 1;
+                if (item.avg < lastAvg) {
+                    rank = index + 1;
+                } else if (lastAvg === -1) {
+                    rank = 1;
+                }
+                positions[item.id] = rank;
+                lastAvg = item.avg;
             });
+
             return positions;
         }
 
@@ -1289,6 +1340,7 @@
 
             const avg = subjectCount > 0 ? (grandTotal / subjectCount).toFixed(2) : "0.00";
             const ordinal = getOrdinal(position);
+            const qrData = `Student ID: ${studentId}, Term: ${term}, Class: ${s.class}`;
 
             const html = `
                 <div class="a4-paper">
@@ -1298,20 +1350,21 @@
                                 <i class="fas fa-graduation-cap"></i>
                              </div>
                              <div class="report-title text-center">
-                                <h1 class="font-serif">NURUL BAYAN SCIENCE ACADEMY</h1>
-                                <p class="arabic text-2xl mt-1">أكاديمية نور البيان للعلوم</p>
-                                <p class="text-xs text-gray-500 mt-2 uppercase tracking-widest">Motto: Knowledge, Faith & Character</p>
-                                <p class="text-sm font-bold text-gray-800 mt-2">STUDENT TERMINAL REPORT</p>
+                                <h1 class="font-serif">${SCHOOL_INFO.englishName}</h1>
+                                <p class="arabic text-xl font-bold mt-1">${SCHOOL_INFO.arabicName}</p>
+                                <p class="text-xs font-semibold text-gray-600 mt-2">${SCHOOL_INFO.address}</p>
+                                <p class="text-xs text-gray-500 uppercase tracking-widest mt-1">Motto: ${SCHOOL_INFO.motto}</p>
+                                <p class="text-base font-bold text-gray-800 mt-3 border-t pt-1">STUDENT TERMINAL REPORT</p>
                              </div>
-                             ${s.photo ? `<img src="${s.photo}" class="student-profile-img">` : `<div class="student-profile-img bg-gray-100 flex items-center justify-center text-gray-400 text-xs text-center p-2">No Photo</div>`}
+                             ${s.photo ? `<img src="${s.photo}" class="student-profile-img">` : `<div class="student-profile-img bg-gray-100 flex items-center justify-center text-gray-400 text-xs text-center p-2">Photo</div>`}
                         </div>
                         
                         <div class="info-grid">
                             <div class="info-item"><span>Student Name:</span> <span>${s.name}</span></div>
-                            <div class="info-item"><span>Class:</span> <span>${s.class}</span></div>
-                            <div class="info-item"><span>Admission No:</span> <span>${s.id.substr(-6).toUpperCase()}</span></div>
                             <div class="info-item"><span>Academic Term:</span> <span>${term}</span></div>
+                            <div class="info-item"><span>Class:</span> <span>${s.class}</span></div>
                             <div class="info-item"><span>Session:</span> <span>2024/2025</span></div>
+                            <div class="info-item"><span>Gender:</span> <span>${s.gender}</span></div>
                             <div class="info-item"><span>Date Issued:</span> <span>${new Date().toLocaleDateString()}</span></div>
                         </div>
 
@@ -1339,7 +1392,7 @@
                                 <div class="summary-value">${avg}%</div>
                             </div>
                             <div class="summary-box">
-                                <div class="summary-label">Subjects</div>
+                                <div class="summary-label">Subjects Taken</div>
                                 <div class="summary-value">${subjectCount}</div>
                             </div>
                              <div class="summary-box" style="border-color: #fcd34d; background: #fffbeb;">
@@ -1356,6 +1409,11 @@
                             <div class="signature-box">
                                 <div class="signature-line"></div>
                                 <p class="text-xs font-bold uppercase">Class Teacher</p>
+                            </div>
+
+                            <div class="qr-section">
+                                <div id="qrcode-placeholder-${studentId}"></div>
+                                <p class="mt-1 font-semibold">Verification QR</p>
                             </div>
                             
                             <!-- STAMP -->
@@ -1375,8 +1433,8 @@
                                 <p class="text-xs font-bold uppercase">Principal's Signature</p>
                             </div>
                         </div>
-                        <div class="text-center mt-6 text-[10px] text-gray-400">
-                             Valid Report Sheet Generated via Nurul Bayan Portal
+                        <div class="text-center mt-6 text-[10px] text-gray-500 border-t pt-2">
+                             Contact: ${SCHOOL_INFO.phone1} | ${SCHOOL_INFO.phone2} | Email: ${SCHOOL_INFO.email}
                         </div>
                     </div>
                 </div>
@@ -1387,6 +1445,24 @@
                 area.insertAdjacentHTML('beforeend', html);
             } else {
                 area.innerHTML = html;
+            }
+            
+            // QR Code Generation
+            const qrPlaceholder = document.getElementById(`qrcode-placeholder-${studentId}`);
+            if(qrPlaceholder) {
+                // Clear previous content
+                qrPlaceholder.innerHTML = ''; 
+                new QRCode(qrPlaceholder, {
+                    text: qrData,
+                    width: 70,
+                    height: 70,
+                    colorDark : "#064e3b",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+
+            if (!isPrintAll) {
                 setTimeout(() => window.print(), 500);
             }
         }
@@ -1413,7 +1489,7 @@
             const positions = calculatePosition(cls, term);
             
             showLoading(true);
-            // Process sequentially to ensure DOM is ready
+            // Process sequentially to ensure QR codes are generated correctly
             for (const s of students) {
                 renderReportCardHTML(s.id, term, true);
             }
@@ -1449,6 +1525,7 @@
             return 'Fail';
         }
         function getOrdinal(n) {
+            if (n === 0) return '';
             const s = ["th", "st", "nd", "rd"];
             const v = n % 100;
             return s[(v - 20) % 10] || s[v] || s[0];
@@ -1473,8 +1550,9 @@
                 <div class="receipt-paper">
                     <div class="receipt-header">
                         <div class="receipt-logo"><i class="fas fa-university"></i></div>
-                        <h2 style="font-weight: bold; font-size: 16px;">NURUL BAYAN ACADEMY</h2>
-                        <p style="font-size: 10px;">Official Payment Receipt</p>
+                        <h2 style="font-weight: bold; font-size: 16px;">${SCHOOL_INFO.englishName}</h2>
+                         <p style="font-size: 12px;" class="arabic">${SCHOOL_INFO.arabicName}</p>
+                        <p style="font-size: 10px; margin-top: 5px; border-top: 1px dashed #000; padding-top: 5px;">Official Payment Receipt</p>
                     </div>
                     
                     <div style="margin: 15px 0;">
@@ -1495,13 +1573,15 @@
                     </div>
 
                      <!-- MINI STAMP -->
-                    <div style="position: absolute; bottom: 40px; right: 10px; transform: rotate(-10deg); border: 2px solid #b91c1c; color: #b91c1c; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; opacity: 0.7;">
+                    <div style="position: absolute; top: 120px; right: 20px; transform: rotate(-10deg); border: 3px solid #b91c1c; color: #b91c1c; border-radius: 50%; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; opacity: 0.7;">
                         PAID
                     </div>
 
                     <div class="receipt-footer">
                         <p>Received By: _________________</p>
                         <p style="margin-top: 5px;">Thank you for your payment.</p>
+                        <p style="margin-top: 10px; font-size: 9px;">${SCHOOL_INFO.address}</p>
+                        <p style="font-size: 9px;">Tel: ${SCHOOL_INFO.phone1}</p>
                     </div>
                 </div>
             `;
